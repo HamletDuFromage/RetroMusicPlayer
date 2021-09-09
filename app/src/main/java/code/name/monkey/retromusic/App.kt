@@ -77,6 +77,7 @@ class App : Application() {
         }
 
         fun isProVersion(): Boolean {
+            return true //free as in free beer
             return BuildConfig.DEBUG || instance?.billingManager!!.isProVersion
         }
     }
