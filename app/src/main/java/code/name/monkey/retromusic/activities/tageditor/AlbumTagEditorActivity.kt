@@ -29,15 +29,16 @@ import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.Toast
 import code.name.monkey.appthemehelper.util.ATHUtil
-import code.name.monkey.appthemehelper.util.MaterialUtil
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.databinding.ActivityAlbumTagEditorBinding
 import code.name.monkey.retromusic.extensions.appHandleColor
+import code.name.monkey.retromusic.extensions.setTint
 import code.name.monkey.retromusic.glide.GlideApp
 import code.name.monkey.retromusic.glide.palette.BitmapPaletteWrapper
 import code.name.monkey.retromusic.model.ArtworkInfo
 import code.name.monkey.retromusic.model.Song
 import code.name.monkey.retromusic.util.ImageUtil
+import code.name.monkey.retromusic.util.MusicUtil
 import code.name.monkey.retromusic.util.RetroColorUtil.generatePalette
 import code.name.monkey.retromusic.util.RetroColorUtil.getColor
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -62,8 +63,6 @@ class AlbumTagEditorActivity : AbsTagEditorActivity<ActivityAlbumTagEditorBindin
     }
 
     override fun loadImageFromFile(selectedFile: Uri?) {
-
-
         GlideApp.with(this@AlbumTagEditorActivity).asBitmapPalette().load(selectedFile)
             .diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true)
             .into(object : ImageViewTarget<BitmapPaletteWrapper>(binding.editorImage) {
@@ -119,10 +118,10 @@ class AlbumTagEditorActivity : AbsTagEditorActivity<ActivityAlbumTagEditorBindin
     private fun setUpViews() {
         fillViewsWithFileTags()
 
-        MaterialUtil.setTint(binding.yearContainer, false)
-        MaterialUtil.setTint(binding.genreContainer, false)
-        MaterialUtil.setTint(binding.albumTitleContainer, false)
-        MaterialUtil.setTint(binding.albumArtistContainer, false)
+        binding.yearContainer.setTint(false)
+        binding.genreContainer.setTint(false)
+        binding.albumTitleContainer.setTint(false)
+        binding.albumArtistContainer.setTint(false)
 
         binding.albumText.appHandleColor().addTextChangedListener(this)
         binding.albumArtistText.appHandleColor().addTextChangedListener(this)
@@ -194,6 +193,11 @@ class AlbumTagEditorActivity : AbsTagEditorActivity<ActivityAlbumTagEditorBindin
         return repository.albumById(id).songs
             .map(Song::data)
     }
+
+    override fun getSongUris(): List<Uri> = repository.albumById(id).songs.map {
+        MusicUtil.getSongFileUri(it.id)
+    }
+
 
     override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
     }

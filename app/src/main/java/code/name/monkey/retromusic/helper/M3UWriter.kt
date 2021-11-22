@@ -18,10 +18,7 @@ import code.name.monkey.retromusic.db.PlaylistWithSongs
 import code.name.monkey.retromusic.db.toSongs
 import code.name.monkey.retromusic.model.Playlist
 import code.name.monkey.retromusic.model.Song
-import java.io.BufferedWriter
-import java.io.File
-import java.io.FileWriter
-import java.io.IOException
+import java.io.*
 
 object M3UWriter : M3UConstants {
     @JvmStatic
@@ -53,7 +50,9 @@ object M3UWriter : M3UConstants {
         if (!dir.exists()) dir.mkdirs()
         val fileName = "${playlistWithSongs.playlistEntity.playlistName}.${M3UConstants.EXTENSION}"
         val file = File(dir, fileName)
-        val songs: List<Song> = playlistWithSongs.songs.toSongs()
+        val songs: List<Song> = playlistWithSongs.songs.sortedBy {
+            it.songPrimaryKey
+        }.toSongs()
         if (songs.isNotEmpty()) {
             val bufferedWriter = BufferedWriter(FileWriter(file))
             bufferedWriter.write(M3UConstants.HEADER)
@@ -66,5 +65,24 @@ object M3UWriter : M3UConstants {
             bufferedWriter.close()
         }
         return file
+    }
+
+    fun writeIO(outputStream: OutputStream, playlistWithSongs: PlaylistWithSongs) {
+        val songs: List<Song> = playlistWithSongs.songs.sortedBy {
+            it.songPrimaryKey
+        }.toSongs()
+        if (songs.isNotEmpty()) {
+            val bufferedWriter = outputStream.bufferedWriter()
+            bufferedWriter.write(M3UConstants.HEADER)
+            songs.forEach {
+                bufferedWriter.newLine()
+                bufferedWriter.write(M3UConstants.ENTRY + it.duration + M3UConstants.DURATION_SEPARATOR + it.artistName + " - " + it.title)
+                bufferedWriter.newLine()
+                bufferedWriter.write(it.data)
+            }
+            bufferedWriter.close()
+        }
+        outputStream.flush()
+        outputStream.close()
     }
 }

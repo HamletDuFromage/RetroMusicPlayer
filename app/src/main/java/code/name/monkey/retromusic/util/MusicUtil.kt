@@ -1,19 +1,23 @@
 package code.name.monkey.retromusic.util
 
+import android.app.Activity
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.provider.BaseColumns
 import android.provider.MediaStore
 import android.text.TextUtils
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
 import androidx.fragment.app.FragmentActivity
+import code.name.monkey.appthemehelper.util.VersionUtils
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.db.PlaylistEntity
 import code.name.monkey.retromusic.db.SongEntity
@@ -25,7 +29,6 @@ import code.name.monkey.retromusic.model.Playlist
 import code.name.monkey.retromusic.model.Song
 import code.name.monkey.retromusic.model.lyrics.AbsSynchronizedLyrics
 import code.name.monkey.retromusic.repository.RealPlaylistRepository
-import code.name.monkey.retromusic.repository.RealSongRepository
 import code.name.monkey.retromusic.repository.Repository
 import code.name.monkey.retromusic.repository.SongRepository
 import code.name.monkey.retromusic.service.MusicService
@@ -35,8 +38,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.tag.FieldKey
-import org.koin.core.KoinComponent
-import org.koin.core.get
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import java.io.File
 import java.io.IOException
 import java.util.*
@@ -73,15 +76,18 @@ object MusicUtil : KoinComponent {
         return if (string2.isNullOrEmpty()) if (string1.isNullOrEmpty()) "" else string1 else "$string1  •  $string2"
     }
 
-    fun createAlbumArtFile(): File {
+    fun createAlbumArtFile(context: Context): File {
         return File(
-            createAlbumArtDir(),
+            createAlbumArtDir(context),
             System.currentTimeMillis().toString()
         )
     }
 
-    private fun createAlbumArtDir(): File {
-        val albumArtDir = File(Environment.getExternalStorageDirectory(), "/albumthumbs/")
+    private fun createAlbumArtDir(context: Context): File {
+        val albumArtDir = File(
+            if (VersionUtils.hasR()) context.cacheDir else Environment.getExternalStorageDirectory(),
+            "/albumthumbs/"
+        )
         if (!albumArtDir.exists()) {
             albumArtDir.mkdirs()
             try {
@@ -183,6 +189,7 @@ object MusicUtil : KoinComponent {
         return lyrics
     }
 
+    @JvmStatic
     fun getMediaStoreAlbumCoverUri(albumId: Long): Uri {
         val sArtworkUri = Uri.parse("content://media/external/audio/albumart")
         return ContentUris.withAppendedId(sArtworkUri, albumId)
@@ -473,16 +480,7 @@ object MusicUtil : KoinComponent {
                 null, null
             )
             if (cursor != null) {
-                // Step 1: Remove selected tracks from the current playlist, as well
-                // as from the album art cache
-                cursor.moveToFirst()
-                while (!cursor.isAfterLast) {
-                    val id = cursor.getLong(BaseColumns._ID)
-                    val song: Song = RealSongRepository(context).song(id)
-                    removeFromQueue(song)
-                    cursor.moveToNext()
-                }
-
+                removeFromQueue(songs)
 
                 // Step 2: Remove files from card
                 cursor.moveToFirst()
@@ -524,6 +522,14 @@ object MusicUtil : KoinComponent {
 
         } catch (ignored: SecurityException) {
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    fun deleteTracksQ(activity: Activity, songs: List<Song>) {
+        val pendingIntent = MediaStore.createDeleteRequest(activity.contentResolver, songs.map {
+            getSongFileUri(it.id)
+        })
+        activity.startIntentSenderForResult(pendingIntent.intentSender, 45, null, 0, 0, 0, null);
     }
 
     fun songByGenre(genreId: Long): Song {
