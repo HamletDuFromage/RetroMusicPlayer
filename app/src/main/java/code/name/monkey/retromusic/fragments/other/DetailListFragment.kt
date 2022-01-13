@@ -64,14 +64,6 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_playlist_de
                 returnTransition = MaterialSharedAxis(MaterialSharedAxis.Y, false)
             }
         }
-        binding.appBarLayout.statusBarForeground =
-            MaterialShapeDrawable.createWithElevationOverlay(requireContext())
-        postponeEnterTransition()
-        view.doOnPreDraw { startPostponedEnterTransition() }
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
         mainActivity.setSupportActionBar(binding.toolbar)
         binding.progressIndicator.hide()
         when (args.type) {
@@ -89,9 +81,13 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_playlist_de
             override fun onChanged() {
                 super.onChanged()
                 val height = dipToPix(52f)
-                binding.recyclerView.setPadding(0, 0, 0, height.toInt())
+                binding.recyclerView.updatePadding(bottom = height.toInt())
             }
         })
+        binding.appBarLayout.statusBarForeground =
+            MaterialShapeDrawable.createWithElevationOverlay(requireContext())
+        postponeEnterTransition()
+        view.doOnPreDraw { startPostponedEnterTransition() }
     }
 
     private fun lastAddedSongs() {
@@ -104,6 +100,7 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_playlist_de
         binding.recyclerView.apply {
             adapter = songAdapter
             layoutManager = linearLayoutManager()
+            scheduleLayoutAnimation()
         }
         libraryViewModel.recentSongs().observe(viewLifecycleOwner, { songs ->
             songAdapter.swapDataSet(songs)
@@ -204,7 +201,7 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_playlist_de
         if (RetroUtil.isTablet()) {
             return if (RetroUtil.isLandscape()) 6 else 4
         }
-        return 2
+        return if (RetroUtil.isLandscape()) 4 else 2
     }
 
     override fun onArtist(artistId: Long, view: View) {

@@ -15,12 +15,7 @@
 package code.name.monkey.retromusic.util
 
 import android.app.Activity
-import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
-import android.net.Uri
-import code.name.monkey.retromusic.R
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.play.core.review.ReviewManagerFactory
 
 object AppRater {
@@ -78,27 +73,5 @@ object AppRater {
                 }
             }
         }
-    }
-
-    private fun showRateDialog(context: Context, editor: SharedPreferences.Editor) {
-        MaterialAlertDialogBuilder(context)
-            .setTitle("Rate this App")
-            .setMessage("If you enjoy using Retro Music, please take a moment to rate it. Thanks for your support!")
-            .setPositiveButton(R.string.app_name) { _, _ ->
-                context.startActivity(
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse("market://details?id=${context.packageName}")
-                    )
-                )
-                editor.putBoolean(DO_NOT_SHOW_AGAIN, true)
-                editor.commit()
-            }
-            .setNeutralButton("Not now", null)
-            .setNegativeButton("No thanks") { _, _ ->
-                editor.putBoolean(DO_NOT_SHOW_AGAIN, true)
-                editor.commit()
-            }
-            .show()
     }
 }

@@ -7,10 +7,12 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import androidx.viewpager.widget.ViewPager
+import code.name.monkey.appthemehelper.util.VersionUtils
 import code.name.monkey.retromusic.*
 import code.name.monkey.retromusic.extensions.getIntRes
 import code.name.monkey.retromusic.extensions.getStringOrDefault
 import code.name.monkey.retromusic.fragments.AlbumCoverStyle
+import code.name.monkey.retromusic.fragments.GridStyle
 import code.name.monkey.retromusic.fragments.NowPlayingScreen
 import code.name.monkey.retromusic.fragments.folder.FoldersFragment
 import code.name.monkey.retromusic.helper.SortOrder.*
@@ -127,6 +129,13 @@ object PreferenceUtil {
             AlbumSongSortOrder.SONG_TRACK_LIST
         )
         set(value) = sharedPreferences.edit { putString(ALBUM_DETAIL_SONG_SORT_ORDER, value) }
+
+    var artistDetailSongSortOrder
+        get() = sharedPreferences.getStringOrDefault(
+           ARTIST_DETAIL_SONG_SORT_ORDER,
+            ArtistSongSortOrder.SONG_A_Z
+        )
+        set(value) = sharedPreferences.edit { putString(ARTIST_DETAIL_SONG_SORT_ORDER, value) }
 
     var songSortOrder
         get() = sharedPreferences.getStringOrDefault(
@@ -343,22 +352,40 @@ object PreferenceUtil {
             putInt(LYRICS_OPTIONS, value)
         }
 
-    var songGridStyle
-        get() = sharedPreferences.getInt(SONG_GRID_STYLE, R.layout.item_grid)
+    var songGridStyle: GridStyle
+        get() {
+            val id: Int = sharedPreferences.getInt(SONG_GRID_STYLE, 0)
+            // We can directly use "first" kotlin extension function here but
+            // there maybe layout id stored in this so to avoid a crash we use
+            // "firstOrNull"
+            return GridStyle.values().firstOrNull { gridStyle ->
+                gridStyle.id == id
+            } ?: GridStyle.Grid
+        }
         set(value) = sharedPreferences.edit {
-            putInt(SONG_GRID_STYLE, value)
+            putInt(SONG_GRID_STYLE, value.id)
         }
 
-    var albumGridStyle
-        get() = sharedPreferences.getInt(ALBUM_GRID_STYLE, R.layout.item_grid)
+    var albumGridStyle: GridStyle
+        get() {
+            val id: Int = sharedPreferences.getInt(ALBUM_GRID_STYLE, 0)
+            return GridStyle.values().firstOrNull { gridStyle ->
+                gridStyle.id == id
+            } ?: GridStyle.Grid
+        }
         set(value) = sharedPreferences.edit {
-            putInt(ALBUM_GRID_STYLE, value)
+            putInt(ALBUM_GRID_STYLE, value.id)
         }
 
-    var artistGridStyle
-        get() = sharedPreferences.getInt(ARTIST_GRID_STYLE, R.layout.item_grid_circle)
+    var artistGridStyle: GridStyle
+        get() {
+            val id: Int = sharedPreferences.getInt(ARTIST_GRID_STYLE, 3)
+            return GridStyle.values().firstOrNull { gridStyle ->
+                gridStyle.id == id
+            } ?: GridStyle.Circular
+        }
         set(value) = sharedPreferences.edit {
-            putInt(ARTIST_GRID_STYLE, value)
+            putInt(ARTIST_GRID_STYLE, value.id)
         }
 
     val filterLength get() = sharedPreferences.getInt(FILTER_SONG, 20)
@@ -497,6 +524,25 @@ object PreferenceUtil {
         }
 
 
+    var playlistGridSize
+        get() = sharedPreferences.getInt(
+            PLAYLIST_GRID_SIZE,
+            App.getContext().getIntRes(R.integer.default_grid_columns)
+        )
+        set(value) = sharedPreferences.edit {
+            putInt(PLAYLIST_GRID_SIZE, value)
+        }
+
+
+    var playlistGridSizeLand
+        get() = sharedPreferences.getInt(
+            PLAYLIST_GRID_SIZE_LAND,
+            App.getContext().getIntRes(R.integer.default_grid_columns_land)
+        )
+        set(value) = sharedPreferences.edit {
+            putInt(PLAYLIST_GRID_SIZE, value)
+        }
+
     var albumCoverStyle: AlbumCoverStyle
         get() {
             val id: Int = sharedPreferences.getInt(ALBUM_COVER_STYLE, 0)
@@ -522,6 +568,8 @@ object PreferenceUtil {
         }
         set(value) = sharedPreferences.edit {
             putInt(NOW_PLAYING_SCREEN_ID, value.id)
+            // Also set a cover theme for that now playing
+            value.defaultCoverTheme?.let { coverTheme -> albumCoverStyle = coverTheme }
         }
 
     val albumCoverTransform: ViewPager.PageTransformer
@@ -615,5 +663,8 @@ object PreferenceUtil {
             .getInt(CROSS_FADE_DURATION, 0)
 
     val materialYou
-        get() = sharedPreferences.getBoolean(MATERIAL_YOU, false)
+        get() = sharedPreferences.getBoolean(MATERIAL_YOU, VersionUtils.hasS())
+
+    val isSnowFalling
+        get() = sharedPreferences.getBoolean(SNOWFALL, false)
 }

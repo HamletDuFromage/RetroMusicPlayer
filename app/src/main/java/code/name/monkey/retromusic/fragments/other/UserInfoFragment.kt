@@ -16,7 +16,6 @@ package code.name.monkey.retromusic.fragments.other
 
 import android.app.Activity
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
@@ -30,9 +29,8 @@ import android.widget.Toast
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import code.name.monkey.appthemehelper.util.ColorUtil
-import code.name.monkey.appthemehelper.util.MaterialValueHelper
 import code.name.monkey.retromusic.Constants.USER_BANNER
 import code.name.monkey.retromusic.Constants.USER_PROFILE
 import code.name.monkey.retromusic.R
@@ -53,7 +51,6 @@ import com.bumptech.glide.request.target.Target
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.github.dhaval2404.imagepicker.constant.ImageProvider
 import com.google.android.material.transition.MaterialContainerTransform
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -61,7 +58,6 @@ import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 
 class UserInfoFragment : Fragment() {
 
@@ -88,6 +84,7 @@ class UserInfoFragment : Fragment() {
         applyToolbar(binding.toolbar)
 
         binding.nameContainer.accentColor()
+        binding.next.accentColor()
         binding.name.setText(PreferenceUtil.userName)
 
         binding.userImage.setOnClickListener {
@@ -112,14 +109,6 @@ class UserInfoFragment : Fragment() {
             findNavController().navigateUp()
         }
 
-        val textColor =
-            MaterialValueHelper.getPrimaryTextColor(
-                requireContext(),
-                ColorUtil.isColorLight(accentColor())
-            )
-        binding.next.backgroundTintList = ColorStateList.valueOf(accentColor())
-        binding.next.iconTint = ColorStateList.valueOf(textColor)
-        binding.next.setTextColor(textColor)
         loadProfile()
         postponeEnterTransition()
         view.doOnPreDraw {
@@ -135,12 +124,11 @@ class UserInfoFragment : Fragment() {
     private fun loadProfile() {
         binding.bannerImage.let {
             GlideApp.with(this)
-                .asBitmap()
                 .load(RetroGlideExtension.getBannerModel())
                 .profileBannerOptions(RetroGlideExtension.getBannerModel())
                 .into(it)
         }
-        GlideApp.with(this).asBitmap()
+        GlideApp.with(this)
             .load(RetroGlideExtension.getUserModel())
             .userProfileOptions(RetroGlideExtension.getUserModel())
             .into(binding.userImage)
@@ -214,17 +202,17 @@ class UserInfoFragment : Fragment() {
     }
 
     private fun saveImage(bitmap: Bitmap, fileName: String) {
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             val appDir = requireContext().filesDir
             val file = File(appDir, fileName)
             var successful = false
-            try {
-                val os = BufferedOutputStream(FileOutputStream(file))
-                successful = ImageUtil.resizeBitmap(bitmap, 2048)
-                    .compress(Bitmap.CompressFormat.WEBP, 100, os)
-                withContext(Dispatchers.IO) { os.close() }
-            } catch (e: IOException) {
-                e.printStackTrace()
+            runCatching {
+                BufferedOutputStream(FileOutputStream(file)).use {
+                    successful = ImageUtil.resizeBitmap(bitmap, 2048)
+                        .compress(Bitmap.CompressFormat.WEBP, 100, it)
+                }
+            }.onFailure {
+                it.printStackTrace()
             }
             if (successful) {
                 withContext(Dispatchers.Main) {

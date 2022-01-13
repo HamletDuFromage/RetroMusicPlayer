@@ -14,11 +14,12 @@
     <string name="action_cycle_repeat">Cycle repeat mode</string>
     <string name="action_delete">हटाएं</string>
     <string name="action_delete_from_device">डिवाइस से हटाएं</string>
-    <string name="action_details">Details</string>
+    <string name="action_details">विवरण</string>
     <string name="action_edit">Edit</string>
     <string name="action_go_to_album">एल्बम पर जाएं</string>
     <string name="action_go_to_artist">कलाकार पर जाएं</string>
     <string name="action_go_to_genre">शैली पर जाएं</string>
+    <string name="action_go_to_lyrics">Go to Lyrics</string>
     <string name="action_go_to_start_directory">शुरू निर्देशिका पर जाएं</string>
     <string name="action_grant">अनुदान</string>
     <string name="action_grid_size">ग्रीड आकार</string>
@@ -57,7 +58,7 @@
     <string name="added_x_titles_to_playing_queue">कतार मे %1$d शीर्षक जोड़ा गया है।</string>
     <string name="album">एल्बम</string>
     <plurals name="albumSongs">
-        <item quantity="one">Song</item>
+        <item quantity="one">गाना</item>
         <item quantity="other">Songs</item>
     </plurals>
     <string name="album_artist">एल्बम कलाकार</string>
@@ -73,7 +74,8 @@
     <string name="app_widget_big_name">Full Image</string>
     <string name="app_widget_card_name">रेट्रो म्यूजिक - कार्ड</string>
     <string name="app_widget_classic_name">रेट्रो म्यूजिक - क्लासिक</string>
-    <string name="app_widget_small_name">Small</string>
+    <string name="app_widget_md3_name">MD3</string>
+    <string name="app_widget_small_name">छोटा</string>
     <string name="app_widget_text_name">Minimal Text</string>
     <string name="artist">कलाकार</string>
     <string name="artists">कलाकार</string>
@@ -81,6 +83,7 @@
     <string name="audio_focus_denied">ऑडियो फोकस से इनकार किया।</string>
     <string name="audio_settings_summary">ध्वनि सेटिंग्स बदलें और तुल्यकारक नियंत्रण समायोजित करें</string>
     <string name="auto">ऑटो</string>
+    <string name="backup_restore_settings_summary">Backup and restore your settings, playlists</string>
     <string name="backup_restore_title"><![CDATA[Backup & Restore]]></string>
     <string name="backup_title">Backups</string>
     <string name="biography">जीवनी</string>
@@ -111,13 +114,14 @@
     <string name="cascading">Cascading</string>
     <string name="changelog">चेंजलाग</string>
     <string name="changelog_summary">Check out What\'s New</string>
+    <string name="choose_restore_title">Choose what to restore</string>
     <string name="circle">Circle</string>
-    <string name="circular">Circular</string>
+    <string name="circular">वृताकार</string>
     <string name="classic">रेट्रो म्यूजिक - क्लासिक</string>
     <string name="clear_action">साफ़</string>
     <string name="clear_blacklist">Clear blacklist</string>
     <string name="clear_playing_queue">Clear queue</string>
-    <string name="color">Color</string>
+    <string name="color">रंग</string>
     <string name="colors">Colors</string>
     <string name="composer">Composer</string>
     <string name="copied_device_info_to_clipboard">Copied device info to clipboard.</string>
@@ -125,11 +129,12 @@
     <string name="could_not_download_album_cover">"Couldn\u2019t download a matching album cover."</string>
     <string name="could_not_restore_purchase">Could not restore purchase.</string>
     <string name="could_not_scan_files">Could not scan %d files.</string>
-    <string name="create_action">Create</string>
-    <string name="create_new_backup">Create</string>
+    <string name="create_action">बनाएं</string>
+    <string name="create_new_backup">बनाएं</string>
     <string name="created_playlist_x">Created playlist %1$s.</string>
     <string name="credit_title">Members and contributors </string>
     <string name="currently_listening_to_x_by_x">Currently listening to %1$s by %2$s.</string>
+    <string name="custom_artist_images">Custom Artist Images</string>
     <string name="dark_theme_name">Kinda Dark</string>
     <string name="delete_playlist_title">Delete playlist</string>
     <string name="delete_playlist_x"><![CDATA[Delete the playlist <b>%1$s</b>?]]></string>
@@ -146,6 +151,7 @@
     <string name="device_info">Device info</string>
     <string name="dialog_message_set_ringtone">Allow Retro Music to modify audio settings</string>
     <string name="dialog_title_set_ringtone">Set ringtone</string>
+    <string name="disc_hint">Disc Number</string>
     <string name="do_you_want_to_clear_the_blacklist">Do you want to clear the blacklist?</string>
     <string name="do_you_want_to_remove_from_the_blacklist"><![CDATA[Do you want to remove <b>%1$s</b> from the blacklist?]]></string>
     <string name="donate">Donate</string>
@@ -385,6 +391,7 @@
     <string name="reset_action">Reset</string>
     <string name="reset_artist_image">Reset artist image</string>
     <string name="restore">Restore</string>
+    <string name="restore_message">Do you want to restore backup?</string>
     <string name="restored_previous_purchase_please_restart">Restored previous purchase. Please restart the app to make use of all features.</string>
     <string name="restored_previous_purchases">Restored previous purchases.</string>
     <string name="restoring_purchase">Restoring purchase…</string>
@@ -434,6 +441,7 @@
     <string name="sort_order">क्रमबद्ध आदेश</string>
     <string name="sort_order_a_z">Ascending</string>
     <string name="sort_order_album">एल्बम</string>
+    <string name="sort_order_album_artist">@string/album_artist</string>
     <string name="sort_order_artist">कलाकार</string>
     <string name="sort_order_composer">Composer</string>
     <string name="sort_order_date">Date added</string>
@@ -460,6 +468,7 @@
     <string name="tiny">Tiny</string>
     <string name="tiny_card_style">Tiny card</string>
     <string name="title">Title</string>
+    <string name="title_new_backup">New Backup</string>
     <string name="today">Today</string>
     <string name="top_albums">Top albums</string>
     <string name="top_artists">Top artists</string>
@@ -475,6 +484,7 @@
     <string name="up_next">Up next</string>
     <string name="update_image">Update image</string>
     <string name="updating">Updating…</string>
+    <string name="user_images_description">User Images</string>
     <string name="user_name">User Name</string>
     <string name="username">Username</string>
     <string name="version">Version</string>

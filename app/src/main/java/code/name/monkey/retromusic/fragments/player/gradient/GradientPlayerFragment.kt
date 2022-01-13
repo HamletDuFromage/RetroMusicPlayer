@@ -23,14 +23,12 @@ import android.graphics.drawable.AnimatedVectorDrawable
 import android.os.Bundle
 import android.view.View
 import android.view.animation.LinearInterpolator
-import android.widget.PopupMenu
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
+import androidx.core.view.*
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -39,9 +37,6 @@ import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.RetroBottomSheetBehavior
 import code.name.monkey.retromusic.adapter.song.PlayingQueueAdapter
 import code.name.monkey.retromusic.databinding.FragmentGradientPlayerBinding
-import code.name.monkey.retromusic.db.PlaylistEntity
-import code.name.monkey.retromusic.db.SongEntity
-import code.name.monkey.retromusic.db.toSongEntity
 import code.name.monkey.retromusic.extensions.*
 import code.name.monkey.retromusic.fragments.base.AbsPlayerControlsFragment
 import code.name.monkey.retromusic.fragments.base.AbsPlayerFragment
@@ -68,8 +63,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_player),
-    MusicProgressViewUpdateHelper.Callback,
-    View.OnLayoutChangeListener, PopupMenu.OnMenuItemClickListener {
+    MusicProgressViewUpdateHelper.Callback, PopupMenu.OnMenuItemClickListener {
     private var lastColor: Int = 0
     private var lastPlaybackControlsColor: Int = 0
     private var lastDisabledPlaybackControlsColor: Int = 0
@@ -81,7 +75,7 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
     private var recyclerViewTouchActionGuardManager: RecyclerViewTouchActionGuardManager? = null
     private var playingQueueAdapter: PlayingQueueAdapter? = null
     private lateinit var linearLayoutManager: LinearLayoutManager
-    private var bottomInsets = 0
+    private var navBarHeight = 0
 
     private var _binding: FragmentGradientPlayerBinding? = null
     private val binding get() = _binding!!
@@ -93,7 +87,7 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
                 top = (slideOffset * binding.statusBarLayout.statusBar.height).toInt()
             )
             binding.container.updatePadding(
-                bottom = ((1 - slideOffset) * bottomInsets).toInt()
+                bottom = ((1 - slideOffset) * navBarHeight).toInt()
             )
         }
 
@@ -126,14 +120,15 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
             popupMenu.setOnMenuItemClickListener(this)
             popupMenu.inflate(R.menu.menu_player)
             popupMenu.menu.findItem(R.id.action_toggle_favorite).isVisible = false
+            popupMenu.menu.findItem(R.id.action_toggle_lyrics).isChecked = PreferenceUtil.showLyrics
             popupMenu.show()
         }
     }
 
     private fun setupPanel() {
-        if (!ViewCompat.isLaidOut(binding.colorBackground) || binding.colorBackground.isLayoutRequested) {
-            binding.colorBackground.addOnLayoutChangeListener(this)
-            return
+        binding.colorBackground.doOnLayout {
+            val panel = getQueuePanel()
+            panel.peekHeight = binding.container.height
         }
     }
 
@@ -161,8 +156,8 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
         ViewCompat.setOnApplyWindowInsetsListener(
             (binding.container)
         ) { v: View, insets: WindowInsetsCompat ->
-            bottomInsets = insets.safeGetBottomInsets()
-            v.updatePadding(bottom = bottomInsets)
+            navBarHeight = insets.safeGetBottomInsets()
+            v.updatePadding(bottom = navBarHeight)
             insets
         }
         binding.playbackControlsFragment.root.drawAboveSystemBars()
@@ -281,23 +276,19 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
 
     private fun updateIsFavoriteIcon(animate: Boolean = false) {
         lifecycleScope.launch(Dispatchers.IO) {
-            val playlist: PlaylistEntity? = libraryViewModel.favoritePlaylist()
-            if (playlist != null) {
-                val song: SongEntity =
-                    MusicPlayerRemote.currentSong.toSongEntity(playlist.playListId)
-                val isFavorite: Boolean = libraryViewModel.isFavoriteSong(song).isNotEmpty()
-                withContext(Dispatchers.Main) {
-                    val icon = if (animate) {
-                        if (isFavorite) R.drawable.avd_favorite else R.drawable.avd_unfavorite
-                    } else {
-                        if (isFavorite) R.drawable.ic_favorite else R.drawable.ic_favorite_border
-                    }
-                    binding.playbackControlsFragment.songFavourite.apply {
-                        setImageResource(icon)
-                        drawable.also {
-                            if (it is AnimatedVectorDrawable) {
-                                it.start()
-                            }
+            val isFavorite: Boolean =
+                libraryViewModel.isSongFavorite(MusicPlayerRemote.currentSong.id)
+            withContext(Dispatchers.Main) {
+                val icon = if (animate) {
+                    if (isFavorite) R.drawable.avd_favorite else R.drawable.avd_unfavorite
+                } else {
+                    if (isFavorite) R.drawable.ic_favorite else R.drawable.ic_favorite_border
+                }
+                binding.playbackControlsFragment.songFavourite.apply {
+                    setImageResource(icon)
+                    drawable.also {
+                        if (it is AnimatedVectorDrawable) {
+                            it.start()
                         }
                     }
                 }
@@ -465,21 +456,6 @@ class GradientPlayerFragment : AbsPlayerFragment(R.layout.fragment_gradient_play
                 binding.nextSong.text = title
             }
         }
-    }
-
-    override fun onLayoutChange(
-        v: View?,
-        left: Int,
-        top: Int,
-        right: Int,
-        bottom: Int,
-        oldLeft: Int,
-        oldTop: Int,
-        oldRight: Int,
-        oldBottom: Int
-    ) {
-        val panel = getQueuePanel()
-        panel.peekHeight = binding.container.height
     }
 
     private fun setupRecyclerView() {

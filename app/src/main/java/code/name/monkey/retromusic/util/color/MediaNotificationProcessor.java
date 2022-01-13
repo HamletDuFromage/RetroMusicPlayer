@@ -75,11 +75,9 @@ public class MediaNotificationProcessor {
    */
   private static final int LIGHTNESS_TEXT_DIFFERENCE_DARK = -10;
 
-  private static final String TAG = "ColorPicking";
   private float[] mFilteredBackgroundHsl = null;
   private final Palette.Filter mBlackWhiteFilter =
           (rgb, hsl) -> !isWhiteOrBlack(hsl);
-  private boolean mIsLowPriority;
   private int backgroundColor;
   private int secondaryTextColor;
   private int primaryTextColor;
@@ -376,10 +374,6 @@ public class MediaNotificationProcessor {
     return hslColor[2] >= WHITE_MIN_LIGHTNESS;
   }
 
-  public void setIsLowPriority(boolean isLowPriority) {
-    mIsLowPriority = isLowPriority;
-  }
-
   private void ensureColors(int backgroundColor, int mForegroundColor) {
     {
       double backLum = NotificationColorUtil.calculateLuminance(backgroundColor);
@@ -478,5 +472,14 @@ public class MediaNotificationProcessor {
 
   public interface OnPaletteLoadedListener {
     void onPaletteLoaded(MediaNotificationProcessor mediaNotificationProcessor);
+  }
+
+  public static MediaNotificationProcessor errorColor(Context context) {
+    MediaNotificationProcessor errorColors = new MediaNotificationProcessor(context);
+    errorColors.backgroundColor = -15724528;
+    errorColors.primaryTextColor = -6974059;
+    errorColors.secondaryTextColor = -8684677;
+    errorColors.actionBarColor = -6974059;
+    return errorColors;
   }
 }

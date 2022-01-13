@@ -14,6 +14,7 @@
  */
 package code.name.monkey.retromusic.fragments
 
+import android.animation.ValueAnimator
 import android.widget.Toast
 import androidx.lifecycle.*
 import code.name.monkey.retromusic.*
@@ -27,7 +28,10 @@ import code.name.monkey.retromusic.repository.RealRepository
 import code.name.monkey.retromusic.util.DensityUtil
 import code.name.monkey.retromusic.util.PreferenceUtil
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 
 class LibraryViewModel(
     private val repository: RealRepository
@@ -226,10 +230,11 @@ class LibraryViewModel(
         repository.deleteRoomPlaylist(playlists)
     }
 
-    suspend fun albumById(id: Long) = repository.albumById(id)
+    fun albumById(id: Long) = repository.albumById(id)
     suspend fun artistById(id: Long) = repository.artistById(id)
     suspend fun favoritePlaylist() = repository.favoritePlaylist()
     suspend fun isFavoriteSong(song: SongEntity) = repository.isFavoriteSong(song)
+    suspend fun isSongFavorite(songId: Long) = repository.isSongFavorite(songId)
     suspend fun insertSongs(songs: List<SongEntity>) = repository.insertSongs(songs)
     suspend fun removeSongFromPlaylist(songEntity: SongEntity) =
         repository.removeSongFromPlaylist(songEntity)
@@ -250,11 +255,13 @@ class LibraryViewModel(
                 }
                 repository.insertSongs(songEntities)
             } else {
-                val playListId = createPlaylist(PlaylistEntity(playlistName = playlist.name))
-                val songEntities = playlist.getSongs().map {
-                    it.toSongEntity(playListId)
+                if (playlist != Playlist.empty){
+                    val playListId = createPlaylist(PlaylistEntity(playlistName = playlist.name))
+                    val songEntities = playlist.getSongs().map {
+                        it.toSongEntity(playListId)
+                    }
+                    repository.insertSongs(songEntities)
                 }
-                repository.insertSongs(songEntities)
             }
             forceReload(Playlists)
         }
@@ -271,9 +278,21 @@ class LibraryViewModel(
     }
 
     fun playCountSongs(): LiveData<List<Song>> = liveData {
-        emit(repository.playCountSongs().map {
+        val songs = repository.playCountSongs().map {
             it.toSong()
-        })
+        }
+        emit(songs)
+        // Cleaning up deleted or moved songs
+        withContext(IO) {
+            songs.forEach { song ->
+                if (!File(song.data).exists() || song.id == -1L) {
+                    repository.deleteSongInPlayCount(song.toPlayCount())
+                }
+            }
+            emit(repository.playCountSongs().map {
+                it.toSong()
+            })
+        }
     }
 
     fun artists(type: Int): LiveData<List<Artist>> = liveData {
@@ -302,7 +321,21 @@ class LibraryViewModel(
         emit(repository.contributor())
     }
 
-    fun observableHistorySongs() = repository.observableHistorySongs()
+    fun observableHistorySongs(): LiveData<List<Song>> = liveData {
+        val songs = repository.historySong().map {
+            it.toSong()
+        }
+        emit(songs)
+        // Cleaning up deleted or moved songs
+        songs.forEach { song ->
+            if (!File(song.data).exists() || song.id == -1L) {
+                repository.deleteSongInHistory(song.id)
+            }
+        }
+        emit(repository.historySong().map {
+            it.toSong()
+        })
+    }
 
     fun favorites() = repository.favorites()
 
@@ -327,21 +360,38 @@ class LibraryViewModel(
                         it.toSongEntity(playListId = playlist.playListId)
                     })
                 }
-                Toast.makeText(
-                    App.getContext(),
-                    "Adding songs to $playlistName",
-                    Toast.LENGTH_SHORT
-                ).show()
+                withContext(Main) {
+                    Toast.makeText(
+                        App.getContext(),
+                        "Playlist already exists",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    if (songs.isNotEmpty()) {
+                       Toast.makeText(
+                            App.getContext(),
+                            "Adding songs to $playlistName",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+
             }
         }
     }
 
     fun setFabMargin(bottomMargin: Int) {
-        fabMargin.postValue(
-            // Normal Margin
-            DensityUtil.dip2px(App.getContext(), 16F) +
-                    bottomMargin
-        )
+        val currentValue = DensityUtil.dip2px(App.getContext(), 16F) +
+                bottomMargin
+        if (currentValue != fabMargin.value) {
+            ValueAnimator.ofInt(fabMargin.value!!, currentValue).apply {
+                addUpdateListener {
+                    fabMargin.postValue(
+                        it.animatedValue as Int
+                    )
+                }
+                start()
+            }
+        }
     }
 }
 

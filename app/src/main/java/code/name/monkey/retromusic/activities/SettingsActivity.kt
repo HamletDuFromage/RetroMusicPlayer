@@ -25,23 +25,23 @@ import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.activities.base.AbsThemeActivity
 import code.name.monkey.retromusic.appshortcuts.DynamicShortcutManager
 import code.name.monkey.retromusic.databinding.ActivitySettingsBinding
-import code.name.monkey.retromusic.extensions.applyToolbar
-import code.name.monkey.retromusic.extensions.extra
-import code.name.monkey.retromusic.extensions.findNavController
-import code.name.monkey.retromusic.extensions.surfaceColor
+import code.name.monkey.retromusic.extensions.*
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.color.ColorCallback
 
 class SettingsActivity : AbsThemeActivity(), ColorCallback, OnThemeChangedListener {
     private lateinit var binding: ActivitySettingsBinding
     override fun onCreate(savedInstanceState: Bundle?) {
-        setDrawUnderStatusBar()
         val mSavedInstanceState = extra<Bundle>(TAG).value ?: savedInstanceState
         super.onCreate(mSavedInstanceState)
-        setLightStatusbarAuto(surfaceColor())
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setupToolbar()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setNavigationBarColorPreOreo(surfaceColor())
     }
 
     private fun setupToolbar() {
@@ -85,7 +85,6 @@ class SettingsActivity : AbsThemeActivity(), ColorCallback, OnThemeChangedListen
         ThemeStore.editTheme(this).accentColor(color).commit()
         if (VersionUtils.hasNougatMR())
             DynamicShortcutManager(this).updateDynamicShortcuts()
-
         restart()
     }
 

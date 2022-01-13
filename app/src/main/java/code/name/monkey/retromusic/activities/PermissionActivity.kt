@@ -22,14 +22,16 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.core.text.HtmlCompat
+import androidx.core.view.isVisible
 import code.name.monkey.appthemehelper.ThemeStore
 import code.name.monkey.appthemehelper.util.VersionUtils
 import code.name.monkey.retromusic.activities.base.AbsMusicServiceActivity
 import code.name.monkey.retromusic.databinding.ActivityPermissionBinding
 import code.name.monkey.retromusic.extensions.accentBackgroundColor
+import code.name.monkey.retromusic.extensions.setStatusBarColorAuto
+import code.name.monkey.retromusic.extensions.setTaskDescriptionColorAuto
 import code.name.monkey.retromusic.extensions.show
 import code.name.monkey.retromusic.util.RingtoneManager
 
@@ -40,7 +42,7 @@ class PermissionActivity : AbsMusicServiceActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityPermissionBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setStatusbarColorAuto()
+        setStatusBarColorAuto()
         setTaskDescriptionColorAuto()
         setupTitle()
 
@@ -82,12 +84,12 @@ class PermissionActivity : AbsMusicServiceActivity() {
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onResume() {
         if (hasStoragePermission()) {
-            binding.storagePermission.checkImage.visibility = View.VISIBLE
+            binding.storagePermission.checkImage.isVisible = true
             binding.storagePermission.checkImage.imageTintList =
                 ColorStateList.valueOf(ThemeStore.accentColor(this))
         }
         if (hasAudioPermission()) {
-            binding.audioPermission.checkImage.visibility = View.VISIBLE
+            binding.audioPermission.checkImage.isVisible = true
             binding.audioPermission.checkImage.imageTintList =
                 ColorStateList.valueOf(ThemeStore.accentColor(this))
         }

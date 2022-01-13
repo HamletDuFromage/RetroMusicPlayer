@@ -24,8 +24,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import code.name.monkey.retromusic.EXTRA_ALBUM_ID
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.adapter.album.AlbumAdapter
-import code.name.monkey.retromusic.extensions.navigate
 import code.name.monkey.retromusic.extensions.surfaceColor
+import code.name.monkey.retromusic.fragments.GridStyle
 import code.name.monkey.retromusic.fragments.ReloadType
 import code.name.monkey.retromusic.fragments.base.AbsRecyclerViewCustomGridSizeFragment
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
@@ -131,11 +131,13 @@ class AlbumsFragment : AbsRecyclerViewCustomGridSizeFragment<AlbumAdapter, GridL
     }
 
     override fun loadLayoutRes(): Int {
-        return PreferenceUtil.albumGridStyle
+        return PreferenceUtil.albumGridStyle.layoutResId
     }
 
     override fun saveLayoutRes(layoutRes: Int) {
-        PreferenceUtil.albumGridStyle = layoutRes
+        PreferenceUtil.albumGridStyle = GridStyle.values().first { gridStyle ->
+            gridStyle.layoutResId == layoutRes
+        }
     }
 
     companion object {
@@ -193,7 +195,7 @@ class AlbumsFragment : AbsRecyclerViewCustomGridSizeFragment<AlbumAdapter, GridL
             0,
             R.id.action_album_sort_order_artist,
             2,
-            R.string.sort_order_artist
+            R.string.sort_order_album_artist
         ).isChecked =
             currentSortOrder.equals(AlbumSortOrder.ALBUM_ARTIST)
         sortOrderMenu.add(
@@ -307,9 +309,9 @@ class AlbumsFragment : AbsRecyclerViewCustomGridSizeFragment<AlbumAdapter, GridL
             R.id.action_layout_circular -> R.layout.item_grid_circle
             R.id.action_layout_image -> R.layout.image
             R.id.action_layout_gradient_image -> R.layout.item_image_gradient
-            else -> PreferenceUtil.albumGridStyle
+            else -> PreferenceUtil.albumGridStyle.layoutResId
         }
-        if (layoutRes != PreferenceUtil.albumGridStyle) {
+        if (layoutRes != PreferenceUtil.albumGridStyle.layoutResId) {
             item.isChecked = true
             setAndSaveLayoutRes(layoutRes)
             return true

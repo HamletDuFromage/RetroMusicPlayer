@@ -37,8 +37,7 @@ import code.name.monkey.retromusic.BuildConfig
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.activities.base.AbsBaseActivity
 import code.name.monkey.retromusic.databinding.ActivityDonationBinding
-import code.name.monkey.retromusic.extensions.textColorPrimary
-import code.name.monkey.retromusic.extensions.textColorSecondary
+import code.name.monkey.retromusic.extensions.*
 import com.anjlab.android.iab.v3.BillingProcessor
 import com.anjlab.android.iab.v3.PurchaseInfo
 import com.anjlab.android.iab.v3.SkuDetails
@@ -73,7 +72,7 @@ class SupportDevelopmentActivity : AbsBaseActivity(), BillingProcessor.IBillingH
         binding = ActivityDonationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setStatusbarColorAuto()
+        setStatusBarColorAuto()
         setTaskDescriptionColorAuto()
 
         setupToolbar()
@@ -84,7 +83,7 @@ class SupportDevelopmentActivity : AbsBaseActivity(), BillingProcessor.IBillingH
     }
 
     private fun setupToolbar() {
-        val toolbarColor = ATHUtil.resolveColor(this, R.attr.colorSurface)
+        val toolbarColor = surfaceColor()
         binding.toolbar.setBackgroundColor(toolbarColor)
         ToolbarContentTintHelper.colorBackButton(binding.toolbar)
         setSupportActionBar(binding.toolbar)

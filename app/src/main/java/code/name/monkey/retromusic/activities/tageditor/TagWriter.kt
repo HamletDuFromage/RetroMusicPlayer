@@ -21,8 +21,8 @@ import org.jaudiotagger.audio.exceptions.CannotWriteException
 import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException
 import org.jaudiotagger.audio.exceptions.ReadOnlyFileException
 import org.jaudiotagger.tag.TagException
+import org.jaudiotagger.tag.images.AndroidArtwork
 import org.jaudiotagger.tag.images.Artwork
-import org.jaudiotagger.tag.images.ArtworkFactory
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -49,20 +49,20 @@ class TagWriter {
             )
         }
 
-        suspend fun writeTagsToFiles(context: Context, info: AudioTagInfo) =
+        suspend fun writeTagsToFiles(context: Context, info: AudioTagInfo) {
             withContext(Dispatchers.IO) {
-                try {
+                kotlin.runCatching {
                     var artwork: Artwork? = null
                     var albumArtFile: File? = null
                     if (info.artworkInfo?.artwork != null) {
                         try {
                             albumArtFile = createAlbumArtFile(context).canonicalFile
                             info.artworkInfo.artwork.compress(
-                                Bitmap.CompressFormat.PNG,
-                                0,
+                                Bitmap.CompressFormat.JPEG,
+                                100,
                                 FileOutputStream(albumArtFile)
                             )
-                            artwork = ArtworkFactory.createArtworkFromFile(albumArtFile)
+                            artwork = AndroidArtwork.createArtworkFromFile(albumArtFile)
                         } catch (e: IOException) {
                             e.printStackTrace()
                         }
@@ -113,29 +113,29 @@ class TagWriter {
                         deleteAlbumArt(context, info.artworkInfo!!.albumId)
                     }
                     scan(context, info.filePaths)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    scan(context, null)
+                }.onFailure {
+                    it.printStackTrace()
                 }
             }
+        }
 
 
         @RequiresApi(Build.VERSION_CODES.R)
-        suspend fun writeTagsToFilesR(context: Context, info: AudioTagInfo) =
+        suspend fun writeTagsToFilesR(context: Context, info: AudioTagInfo): List<File> =
             withContext(Dispatchers.IO) {
                 val cacheFiles = mutableListOf<File>()
-                try {
+                kotlin.runCatching {
                     var artwork: Artwork? = null
                     var albumArtFile: File? = null
                     if (info.artworkInfo?.artwork != null) {
                         try {
                             albumArtFile = createAlbumArtFile(context).canonicalFile
                             info.artworkInfo.artwork.compress(
-                                Bitmap.CompressFormat.PNG,
-                                0,
+                                Bitmap.CompressFormat.JPEG,
+                                100,
                                 FileOutputStream(albumArtFile)
                             )
-                            artwork = ArtworkFactory.createArtworkFromFile(albumArtFile)
+                            artwork = AndroidArtwork.createArtworkFromFile(albumArtFile)
                         } catch (e: IOException) {
                             e.printStackTrace()
                         }
@@ -193,11 +193,10 @@ class TagWriter {
                     } else if (deletedArtwork) {
                         deleteAlbumArt(context, info.artworkInfo!!.albumId)
                     }
-                    cacheFiles
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    listOf()
+                }.onFailure {
+                    it.printStackTrace()
                 }
+                cacheFiles
             }
     }
 }

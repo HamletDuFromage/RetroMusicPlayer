@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.ViewCompat
+import androidx.core.view.setPadding
 import androidx.fragment.app.FragmentActivity
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.adapter.base.AbsMultiSelectAdapter
@@ -29,20 +30,24 @@ import code.name.monkey.retromusic.adapter.base.MediaEntryViewHolder
 import code.name.monkey.retromusic.db.PlaylistEntity
 import code.name.monkey.retromusic.db.PlaylistWithSongs
 import code.name.monkey.retromusic.db.toSongs
+import code.name.monkey.retromusic.extensions.dipToPix
 import code.name.monkey.retromusic.extensions.hide
 import code.name.monkey.retromusic.extensions.show
 import code.name.monkey.retromusic.glide.GlideApp
 import code.name.monkey.retromusic.glide.playlistPreview.PlaylistPreview
+import code.name.monkey.retromusic.helper.SortOrder.PlaylistSortOrder
 import code.name.monkey.retromusic.helper.menu.PlaylistMenuHelper
 import code.name.monkey.retromusic.helper.menu.SongsMenuHelper
 import code.name.monkey.retromusic.interfaces.ICabHolder
 import code.name.monkey.retromusic.interfaces.IPlaylistClickListener
 import code.name.monkey.retromusic.model.Song
 import code.name.monkey.retromusic.util.MusicUtil
+import code.name.monkey.retromusic.util.PreferenceUtil
+import me.zhanghai.android.fastscroll.PopupTextProvider
 
 class PlaylistAdapter(
     override val activity: FragmentActivity,
-    private var dataSet: List<PlaylistWithSongs>,
+    var dataSet: List<PlaylistWithSongs>,
     private var itemLayoutRes: Int,
     ICabHolder: ICabHolder?,
     private val listener: IPlaylistClickListener
@@ -50,7 +55,7 @@ class PlaylistAdapter(
     activity,
     ICabHolder,
     R.menu.menu_playlists_selection
-) {
+), PopupTextProvider {
 
     init {
         setHasStableIds(true)
@@ -82,6 +87,17 @@ class PlaylistAdapter(
         return MusicUtil.getPlaylistInfoString(activity, playlist.songs.toSongs())
     }
 
+    override fun getPopupText(position: Int): String {
+        val sectionName: String = when (PreferenceUtil.playlistSortOrder) {
+            PlaylistSortOrder.PLAYLIST_A_Z, PlaylistSortOrder.PLAYLIST_Z_A -> dataSet[position].playlistEntity.playlistName
+            PlaylistSortOrder.PLAYLIST_SONG_COUNT, PlaylistSortOrder.PLAYLIST_SONG_COUNT_DESC -> dataSet[position].songs.size.toString()
+            else -> {
+                return ""
+            }
+        }
+        return MusicUtil.getSectionName(sectionName)
+    }
+
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val playlist = dataSet[position]
         holder.itemView.isActivated = isChecked(playlist)
@@ -94,7 +110,12 @@ class PlaylistAdapter(
             holder.menu?.show()
         }
         GlideApp.with(activity)
-            .load(PlaylistPreview(playlist))
+            .load(
+                if (itemLayoutRes == R.layout.item_list) {
+                    holder.image?.setPadding(activity.dipToPix(8F).toInt())
+                    R.drawable.ic_playlist_play
+                } else PlaylistPreview(playlist)
+            )
             .playlistOptions()
             .into(holder.image!!)
     }

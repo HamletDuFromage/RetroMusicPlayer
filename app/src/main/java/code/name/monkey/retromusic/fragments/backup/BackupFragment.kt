@@ -1,11 +1,13 @@
 package code.name.monkey.retromusic.fragments.backup
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -15,10 +17,14 @@ import androidx.recyclerview.widget.RecyclerView
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.adapter.backup.BackupAdapter
 import code.name.monkey.retromusic.databinding.FragmentBackupBinding
+import code.name.monkey.retromusic.extensions.accentColor
+import code.name.monkey.retromusic.extensions.accentOutlineColor
 import code.name.monkey.retromusic.helper.BackupHelper
+import code.name.monkey.retromusic.helper.sanitize
 import code.name.monkey.retromusic.util.BackupUtil
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.input.input
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -41,26 +47,23 @@ class BackupFragment : Fragment(R.layout.fragment_backup), BackupAdapter.BackupC
             else
                 backupAdapter?.swapDataset(listOf())
         }
-        backupViewModel.loadBackups()
-        setupButtons()
-    }
-
-    private fun setupButtons() {
-        binding.createBackup.setOnClickListener {
-            MaterialDialog(requireContext()).show {
-                title(res = R.string.action_rename)
-                input(prefill = System.currentTimeMillis().toString()) { _, text ->
-                    // Text submitted with the action button
-                    lifecycleScope.launch {
-                        BackupHelper.createBackup(requireContext(), text.toString())
-                        backupViewModel.loadBackups()
-                    }
+        backupViewModel.loadBackups(requireContext())
+        val openFilePicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                it?.let {
+                    startActivity(Intent(context, RestoreActivity::class.java).apply {
+                        data = it
+                    })
                 }
-                positiveButton(android.R.string.ok)
-                negativeButton(R.string.action_cancel)
-                setTitle(R.string.title_new_backup)
             }
-
+        }
+        binding.createBackup.accentOutlineColor()
+        binding.restoreBackup.accentColor()
+        binding.createBackup.setOnClickListener {
+            showCreateBackupDialog()
+        }
+        binding.restoreBackup.setOnClickListener {
+            openFilePicker.launch(arrayOf("application/octet-stream"))
         }
     }
 
@@ -75,8 +78,7 @@ class BackupFragment : Fragment(R.layout.fragment_backup), BackupAdapter.BackupC
     }
 
     private fun checkIsEmpty() {
-        val isEmpty = backupAdapter!!.itemCount == 0
-        binding.empty.isVisible = isEmpty
+        val isEmpty = backupAdapter?.itemCount == 0
         binding.backupTitle.isVisible = !isEmpty
         binding.backupRecyclerview.isVisible = !isEmpty
     }
@@ -88,20 +90,33 @@ class BackupFragment : Fragment(R.layout.fragment_backup), BackupAdapter.BackupC
         }
     }
 
-    override fun onBackupClicked(file: File) {
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.restore)
-            .setMessage(R.string.restore_message)
-            .setPositiveButton(R.string.restore) { _, _ ->
+    @SuppressLint("CheckResult")
+    private fun showCreateBackupDialog() {
+        MaterialDialog(requireContext()).show {
+            cornerRadius(res = R.dimen.m3_card_corner_radius)
+            title(res = R.string.action_rename)
+            input(prefill = BackupHelper.getTimeStamp()) { _, text ->
+                // Text submitted with the action button
                 lifecycleScope.launch {
-                    backupViewModel.restoreBackup(requireActivity(), file)
+                    BackupHelper.createBackup(requireContext(), text.sanitize())
+                    backupViewModel.loadBackups(requireContext())
                 }
             }
-            .setNegativeButton(android.R.string.cancel, null)
-            .create()
-            .show()
+            positiveButton(android.R.string.ok)
+            negativeButton(R.string.action_cancel)
+            setTitle(R.string.title_new_backup)
+        }
     }
 
+    override fun onBackupClicked(file: File) {
+        lifecycleScope.launch {
+            startActivity(Intent(context, RestoreActivity::class.java).apply {
+                data = file.toUri()
+            })
+        }
+    }
+
+    @SuppressLint("CheckResult")
     override fun onBackupMenuClicked(file: File, menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
             R.id.action_delete -> {
@@ -114,12 +129,16 @@ class BackupFragment : Fragment(R.layout.fragment_backup), BackupAdapter.BackupC
                         Toast.LENGTH_SHORT
                     ).show()
                 }
-                backupViewModel.loadBackups()
+                backupViewModel.loadBackups(requireContext())
                 return true
             }
             R.id.action_share -> {
                 activity?.startActivity(
-                    Intent.createChooser(BackupUtil.createShareFileIntent(file, requireContext()), null))
+                    Intent.createChooser(
+                        BackupUtil.createShareFileIntent(file, requireContext()),
+                        null
+                    )
+                )
                 return true
             }
             R.id.action_rename -> {
@@ -128,10 +147,10 @@ class BackupFragment : Fragment(R.layout.fragment_backup), BackupAdapter.BackupC
                     input(prefill = file.nameWithoutExtension) { _, text ->
                         // Text submitted with the action button
                         val renamedFile =
-                            File(file.parent + File.separator + text + BackupHelper.APPEND_EXTENSION)
+                            File(file.parent, "$text${BackupHelper.APPEND_EXTENSION}")
                         if (!renamedFile.exists()) {
                             file.renameTo(renamedFile)
-                            backupViewModel.loadBackups()
+                            backupViewModel.loadBackups(requireContext())
                         } else {
                             Toast.makeText(
                                 requireContext(),

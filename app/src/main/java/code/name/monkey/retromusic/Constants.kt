@@ -37,6 +37,7 @@ object Constants {
     const val IS_MUSIC =
         MediaStore.Audio.AudioColumns.IS_MUSIC + "=1" + " AND " + MediaStore.Audio.AudioColumns.TITLE + " != ''"
 
+    @Suppress("Deprecation")
     val baseProjection = arrayOf(
         BaseColumns._ID, // 0
         MediaStore.Audio.AudioColumns.TITLE, // 1
@@ -118,6 +119,8 @@ const val ALBUM_GRID_SIZE_LAND = "album_grid_size_land"
 const val SONG_GRID_SIZE_LAND = "song_grid_size_land"
 const val ARTIST_GRID_SIZE = "artist_grid_size"
 const val ARTIST_GRID_SIZE_LAND = "artist_grid_size_land"
+const val PLAYLIST_GRID_SIZE = "playlist_grid_size"
+const val PLAYLIST_GRID_SIZE_LAND = "playlist_grid_size_land"
 const val COLORED_APP_SHORTCUTS = "colored_app_shortcuts"
 const val AUDIO_DUCKING = "audio_ducking"
 const val LAST_ADDED_CUTOFF = "last_added_interval"
@@ -132,6 +135,7 @@ const val LOCK_SCREEN = "lock_screen"
 const val ALBUM_ARTISTS_ONLY = "album_artists_only"
 const val ALBUM_ARTIST = "album_artist"
 const val ALBUM_DETAIL_SONG_SORT_ORDER = "album_detail_song_sort_order"
+const val ARTIST_DETAIL_SONG_SORT_ORDER = "artist_detail_song_sort_order"
 const val LYRICS_OPTIONS = "lyrics_tab_position"
 const val CHOOSE_EQUALIZER = "choose_equalizer"
 const val EQUALIZER = "equalizer"
@@ -149,3 +153,4 @@ const val REMEMBER_LAST_TAB = "remember_last_tab"
 const val LAST_USED_TAB = "last_used_tab"
 const val WHITELIST_MUSIC = "whitelist_music"
 const val MATERIAL_YOU = "material_you"
+const val SNOWFALL = "snowfall"

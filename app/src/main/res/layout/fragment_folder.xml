@@ -77,11 +77,12 @@
             tools:visibility="visible" />
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
+    <code.name.monkey.retromusic.views.insets.InsetsRecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
+        android:overScrollMode="@integer/overScrollMode"
         android:scrollbars="none"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

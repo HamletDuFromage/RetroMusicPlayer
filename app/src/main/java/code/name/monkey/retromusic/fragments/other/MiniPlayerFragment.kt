@@ -32,6 +32,8 @@ import code.name.monkey.retromusic.extensions.show
 import code.name.monkey.retromusic.extensions.textColorPrimary
 import code.name.monkey.retromusic.extensions.textColorSecondary
 import code.name.monkey.retromusic.fragments.base.AbsMusicServiceFragment
+import code.name.monkey.retromusic.glide.GlideApp
+import code.name.monkey.retromusic.glide.RetroGlideExtension
 import code.name.monkey.retromusic.helper.MusicPlayerRemote
 import code.name.monkey.retromusic.helper.MusicProgressViewUpdateHelper
 import code.name.monkey.retromusic.helper.PlayPauseButtonOnClickHandler
@@ -110,13 +112,13 @@ open class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_p
     }
 
     private fun updateSongCover() {
-//        val song = MusicPlayerRemote.currentSong
-//        GlideApp.with(requireContext())
-//            .asBitmap()
-//            .songCoverOptions(song)
-//            .transition(RetroGlideExtension.getDefaultTransition())
-//            .load(RetroGlideExtension.getSongModel(song))
-//            .into(binding.image)
+        val song = MusicPlayerRemote.currentSong
+        GlideApp.with(requireContext())
+            .asBitmap()
+            .songCoverOptions(song)
+            .transition(RetroGlideExtension.getDefaultTransition())
+            .load(RetroGlideExtension.getSongModel(song))
+            .into(binding.image)
     }
 
     override fun onServiceConnected() {
@@ -162,30 +164,26 @@ open class MiniPlayerFragment : AbsMusicServiceFragment(R.layout.fragment_mini_p
 
     class FlingPlayBackController(context: Context) : View.OnTouchListener {
 
-        private var flingPlayBackController: GestureDetector
-
-        init {
-            flingPlayBackController = GestureDetector(context,
-                object : GestureDetector.SimpleOnGestureListener() {
-                    override fun onFling(
-                        e1: MotionEvent,
-                        e2: MotionEvent,
-                        velocityX: Float,
-                        velocityY: Float
-                    ): Boolean {
-                        if (abs(velocityX) > abs(velocityY)) {
-                            if (velocityX < 0) {
-                                MusicPlayerRemote.playNextSong()
-                                return true
-                            } else if (velocityX > 0) {
-                                MusicPlayerRemote.playPreviousSong()
-                                return true
-                            }
+        private var flingPlayBackController = GestureDetector(context,
+            object : GestureDetector.SimpleOnGestureListener() {
+                override fun onFling(
+                    e1: MotionEvent,
+                    e2: MotionEvent,
+                    velocityX: Float,
+                    velocityY: Float
+                ): Boolean {
+                    if (abs(velocityX) > abs(velocityY)) {
+                        if (velocityX < 0) {
+                            MusicPlayerRemote.playNextSong()
+                            return true
+                        } else if (velocityX > 0) {
+                            MusicPlayerRemote.playPreviousSong()
+                            return true
                         }
-                        return false
                     }
-                })
-        }
+                    return false
+                }
+            })
 
         @SuppressLint("ClickableViewAccessibility")
         override fun onTouch(v: View, event: MotionEvent): Boolean {

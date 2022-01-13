@@ -23,9 +23,16 @@ import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.annotation.GlideExtension
 import com.bumptech.glide.annotation.GlideOption
 import com.bumptech.glide.annotation.GlideType
+import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.Key
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.BaseRequestOptions
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.request.target.Target.SIZE_ORIGINAL
+import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
+import com.bumptech.glide.request.transition.Transition
 import com.bumptech.glide.signature.MediaStoreSignature
 import java.io.File
 
@@ -33,10 +40,10 @@ import java.io.File
 @GlideExtension
 object RetroGlideExtension {
 
-    private const val DEFAULT_ERROR_ARTIST_IMAGE =
+    private const val DEFAULT_ARTIST_IMAGE =
         R.drawable.default_artist_art
-    private const val DEFAULT_ERROR_SONG_IMAGE: Int = R.drawable.default_audio_art
-    private const val DEFAULT_ERROR_ALBUM_IMAGE = R.drawable.default_album_art
+    private const val DEFAULT_SONG_IMAGE: Int = R.drawable.default_audio_art
+    private const val DEFAULT_ALBUM_IMAGE = R.drawable.default_album_art
     private const val DEFAULT_ERROR_IMAGE_BANNER = R.drawable.material_design_default
 
     private val DEFAULT_DISK_CACHE_STRATEGY_ARTIST = DiskCacheStrategy.RESOURCE
@@ -99,7 +106,9 @@ object RetroGlideExtension {
         return baseRequestOptions
             .diskCacheStrategy(DEFAULT_DISK_CACHE_STRATEGY_ARTIST)
             .priority(Priority.LOW)
-            .error(DEFAULT_ERROR_ARTIST_IMAGE)
+            .error(DEFAULT_ARTIST_IMAGE)
+            .placeholder(DEFAULT_ARTIST_IMAGE)
+            .override(SIZE_ORIGINAL, SIZE_ORIGINAL)
             .signature(createSignature(artist))
     }
 
@@ -110,7 +119,18 @@ object RetroGlideExtension {
         song: Song
     ): BaseRequestOptions<*> {
         return baseRequestOptions.diskCacheStrategy(DEFAULT_DISK_CACHE_STRATEGY)
-            .error(DEFAULT_ERROR_SONG_IMAGE)
+            .error(DEFAULT_SONG_IMAGE)
+            .placeholder(DEFAULT_SONG_IMAGE)
+            .signature(createSignature(song))
+    }
+
+    @JvmStatic
+    @GlideOption
+    fun simpleSongCoverOptions(
+        baseRequestOptions: BaseRequestOptions<*>,
+        song: Song
+    ): BaseRequestOptions<*> {
+        return baseRequestOptions.diskCacheStrategy(DEFAULT_DISK_CACHE_STRATEGY)
             .signature(createSignature(song))
     }
 
@@ -121,7 +141,8 @@ object RetroGlideExtension {
         song: Song
     ): BaseRequestOptions<*> {
         return baseRequestOptions.diskCacheStrategy(DEFAULT_DISK_CACHE_STRATEGY)
-            .error(DEFAULT_ERROR_ALBUM_IMAGE)
+            .error(DEFAULT_ALBUM_IMAGE)
+            .placeholder(DEFAULT_ALBUM_IMAGE)
             .signature(createSignature(song))
     }
 
@@ -154,7 +175,7 @@ object RetroGlideExtension {
         baseRequestOptions: BaseRequestOptions<*>
     ): BaseRequestOptions<*> {
         return baseRequestOptions.diskCacheStrategy(DEFAULT_DISK_CACHE_STRATEGY)
-            .error(DEFAULT_ERROR_ALBUM_IMAGE)
+            .error(DEFAULT_ALBUM_IMAGE)
     }
 
     private fun createSignature(song: Song): Key {
@@ -191,4 +212,33 @@ object RetroGlideExtension {
     fun <TranscodeType> getDefaultTransition(): GenericTransitionOptions<TranscodeType> {
         return GenericTransitionOptions<TranscodeType>().transition(DEFAULT_ANIMATION)
     }
+}
+
+// https://github.com/bumptech/glide/issues/527#issuecomment-148840717
+fun GlideRequest<Drawable>.crossfadeListener(): GlideRequest<Drawable> {
+    return listener(object : RequestListener<Drawable> {
+        override fun onLoadFailed(
+            e: GlideException?,
+            model: Any?,
+            target: Target<Drawable>?,
+            isFirstResource: Boolean
+        ): Boolean {
+            return false
+        }
+
+        override fun onResourceReady(
+            resource: Drawable?,
+            model: Any?,
+            target: Target<Drawable>?,
+            dataSource: DataSource?,
+            isFirstResource: Boolean
+        ): Boolean {
+            return if (isFirstResource) {
+                false // thumbnail was not shown, do as usual
+            } else DrawableCrossFadeFactory.Builder()
+                .setCrossFadeEnabled(true).build()
+                .build(dataSource, isFirstResource)
+                .transition(resource, target as Transition.ViewAdapter)
+        }
+    })
 }

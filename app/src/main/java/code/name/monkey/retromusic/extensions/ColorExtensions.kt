@@ -65,6 +65,10 @@ fun Context.surfaceColor() = resolveColor(R.attr.colorSurface, Color.WHITE)
 
 fun Fragment.surfaceColor() = resolveColor(R.attr.colorSurface, Color.WHITE)
 
+fun Context.surfaceColor(fallBackColor: Int) = resolveColor(R.attr.colorSurface, fallBackColor)
+
+fun Fragment.surfaceColor(fallBackColor: Int) = resolveColor(R.attr.colorSurface, fallBackColor)
+
 fun Context.textColorSecondary() = resolveColor(android.R.attr.textColorSecondary)
 
 fun Fragment.textColorSecondary() = resolveColor(android.R.attr.textColorSecondary)
@@ -73,9 +77,17 @@ fun Context.colorControlNormal() = resolveColor(android.R.attr.colorControlNorma
 
 fun Fragment.colorControlNormal() = resolveColor(android.R.attr.colorControlNormal)
 
+fun Context.colorBackground() = resolveColor(android.R.attr.colorBackground)
+
+fun Fragment.colorBackground() = resolveColor(android.R.attr.colorBackground)
+
 fun Context.textColorPrimary() = resolveColor(android.R.attr.textColorPrimary)
 
 fun Fragment.textColorPrimary() = resolveColor(android.R.attr.textColorPrimary)
+
+fun Context.defaultFooterColor() = resolveColor(R.attr.defaultFooterColor)
+
+fun Fragment.defaultFooterColor() = resolveColor(R.attr.defaultFooterColor)
 
 fun Context.resolveColor(@AttrRes attr: Int, fallBackColor: Int = 0) =
     ATHUtil.resolveColor(this, attr, fallBackColor)
@@ -118,6 +130,15 @@ fun MaterialButton.accentOutlineColor() {
     strokeColor = colorStateList
     setTextColor(colorStateList)
     rippleColor = colorStateList
+}
+
+fun MaterialButton.elevatedAccentColor() {
+    if (materialYou) return
+    val color = context.darkAccentColorVariant()
+    rippleColor = ColorStateList.valueOf(color)
+    setBackgroundColor(color)
+    setTextColor(MaterialValueHelper.getPrimaryTextColor(context, color.isColorLight))
+    iconTint = ColorStateList.valueOf(context.accentColor())
 }
 
 fun SeekBar.applyColor(@ColorInt color: Int) {
@@ -227,12 +248,32 @@ fun Context.getColorCompat(@ColorRes colorRes: Int): Int {
 
 @ColorInt
 fun Context.darkAccentColor(): Int {
+    val colorSurfaceVariant = if (surfaceColor().isColorLight) {
+        surfaceColor()
+    } else {
+        surfaceColor().lighterColor
+    }
+    return ColorUtils.blendARGB(
+        accentColor(),
+        colorSurfaceVariant,
+        if (surfaceColor().isColorLight) 0.96f else 0.975f
+    )
+}
+
+@ColorInt
+fun Context.darkAccentColorVariant(): Int {
     return ColorUtils.blendARGB(
         accentColor(),
         surfaceColor(),
-        if (surfaceColor().isColorLight) 0.96f else 0.975f
+        if (surfaceColor().isColorLight) 0.9f else 0.95f
     )
 }
 
 inline val @receiver:ColorInt Int.isColorLight
     get() = ColorUtil.isColorLight(this)
+
+inline val @receiver:ColorInt Int.lighterColor
+    get() = ColorUtil.lightenColor(this)
+
+inline val @receiver:ColorInt Int.darkerColor
+    get() = ColorUtil.darkenColor(this)

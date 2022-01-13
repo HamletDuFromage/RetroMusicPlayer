@@ -18,13 +18,13 @@ import android.app.KeyguardManager
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.view.View
 import android.view.WindowManager
 import androidx.core.view.ViewCompat
+import code.name.monkey.appthemehelper.util.VersionUtils
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.activities.base.AbsMusicServiceActivity
 import code.name.monkey.retromusic.databinding.ActivityLockScreenBinding
-import code.name.monkey.retromusic.extensions.whichFragment
+import code.name.monkey.retromusic.extensions.*
 import code.name.monkey.retromusic.fragments.player.lockscreen.LockScreenControlsFragment
 import code.name.monkey.retromusic.glide.GlideApp
 import code.name.monkey.retromusic.glide.RetroGlideExtension
@@ -41,13 +41,11 @@ class LockScreenActivity : AbsMusicServiceActivity() {
     private var fragment: LockScreenControlsFragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setDrawUnderStatusBar()
         super.onCreate(savedInstanceState)
         lockScreenInit()
         binding = ActivityLockScreenBinding.inflate(layoutInflater)
         setContentView(binding.root)
         hideStatusBar()
-        setStatusbarColorAuto()
         setTaskDescriptionColorAuto()
 
         val config = SlidrConfig.Builder().listener(object : SlidrListener {
@@ -61,7 +59,7 @@ class LockScreenActivity : AbsMusicServiceActivity() {
             }
 
             override fun onSlideClosed(): Boolean {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (VersionUtils.hasOreo()) {
                     val keyguardManager =
                         getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
                     keyguardManager.requestDismissKeyguard(this@LockScreenActivity, null)
@@ -75,13 +73,14 @@ class LockScreenActivity : AbsMusicServiceActivity() {
 
         fragment = whichFragment<LockScreenControlsFragment>(R.id.playback_controls_fragment)
 
-        findViewById<View>(R.id.slide).apply {
+        binding.slide.apply {
             translationY = 100f
             alpha = 0f
             ViewCompat.animate(this).translationY(0f).alpha(1f).setDuration(1500).start()
         }
     }
 
+    @Suppress("Deprecation")
     private fun lockScreenInit() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setShowWhenLocked(true)
