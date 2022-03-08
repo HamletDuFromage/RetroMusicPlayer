@@ -177,6 +177,7 @@
     <string name="label_file_name">檔案名</string>
     <string name="label_file_path">檔案位址</string>
     <string name="label_file_size">大小</string>
+    <string name="label_last_modified">最后修改</string>
     <string name="label_more_from">來自%s的更多資訊</string>
     <string name="label_sampling_rate">取樣頻率</string>
     <string name="label_track_length">長度</string>
@@ -229,7 +230,7 @@
     <string name="password">密碼</string>
     <string name="past_three_months">在3個月內</string>
     <string name="paste_lyrics_here">在此貼上歌詞</string>
-    <string name="peak">波紋</string>
+    <string name="peek">波紋</string>
     <string name="permission_external_storage_denied">存取外置儲存空間權限被拒。</string>
     <string name="permissions_denied">存取權限被拒。</string>
     <string name="personalize">個人化</string>

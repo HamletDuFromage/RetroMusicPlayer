@@ -22,7 +22,6 @@ import android.content.Intent
 import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.Drawable
 import android.media.MediaMetadataRetriever
-import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.GestureDetector
@@ -297,7 +296,7 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMainActivityFragme
         playerAlbumCoverFragment = whichFragment(R.id.playerAlbumCoverFragment)
         playerAlbumCoverFragment?.setCallbacks(this)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        if (VersionUtils.hasMarshmallow())
             view.findViewById<RelativeLayout>(R.id.statusBarShadow)?.hide()
     }
 
@@ -306,7 +305,7 @@ abstract class AbsPlayerFragment(@LayoutRes layout: Int) : AbsMainActivityFragme
         super.onResume()
         val nps = PreferenceUtil.nowPlayingScreen
 
-        if (nps == NowPlayingScreen.Circle || nps == NowPlayingScreen.Peak || nps == NowPlayingScreen.Tiny) {
+        if (nps == NowPlayingScreen.Circle || nps == NowPlayingScreen.Peek || nps == NowPlayingScreen.Tiny) {
             playerToolbar()?.menu?.removeItem(R.id.action_toggle_lyrics)
         } else {
             playerToolbar()?.menu?.findItem(R.id.action_toggle_lyrics)?.apply {

@@ -1,20 +1,17 @@
 package code.name.monkey.retromusic.util
 
-import android.app.Activity
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
-import android.os.Build
 import android.os.Environment
 import android.provider.BaseColumns
 import android.provider.MediaStore
 import android.text.TextUtils
 import android.util.Log
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
 import androidx.fragment.app.FragmentActivity
 import code.name.monkey.appthemehelper.util.VersionUtils
@@ -42,6 +39,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import java.io.File
 import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.*
 import java.util.regex.Pattern
 
@@ -297,6 +295,14 @@ object MusicUtil : KoinComponent {
         return songs.indexOfFirst { it.id == songId }
     }
 
+    fun getDateModifiedString(date: Long): String {
+        val calendar: Calendar = Calendar.getInstance()
+        val pattern = "dd/MM/yyyy hh:mm:ss"
+        calendar.timeInMillis = date
+        val formatter = SimpleDateFormat(pattern, Locale.ENGLISH)
+        return formatter.format(calendar.time)
+    }
+
     fun insertAlbumArt(
         context: Context,
         albumId: Long,
@@ -522,15 +528,6 @@ object MusicUtil : KoinComponent {
 
         } catch (ignored: SecurityException) {
         }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.R)
-    fun deleteTracksR(activity: Activity, songs: List<Song>) {
-        removeFromQueue(songs)
-        val pendingIntent = MediaStore.createDeleteRequest(activity.contentResolver, songs.map {
-            getSongFileUri(it.id)
-        })
-        activity.startIntentSenderForResult(pendingIntent.intentSender, 45, null, 0, 0, 0, null)
     }
 
     fun songByGenre(genreId: Long): Song {

@@ -220,6 +220,7 @@
     <string name="label_file_name">文件名</string>
     <string name="label_file_path">文件路径</string>
     <string name="label_file_size">文件大小</string>
+    <string name="label_last_modified">最后修改</string>
     <string name="label_more_from">来自 %s 的更多歌曲</string>
     <string name="label_sampling_rate">采样率</string>
     <string name="label_track_length">长度</string>
@@ -279,7 +280,7 @@
     <string name="past_three_months">最近三个月</string>
     <string name="paste_lyrics_here">在此粘贴歌词</string>
     <string name="paste_timeframe_lyrics_here">在此粘贴时段歌词</string>
-    <string name="peak">顶点</string>
+    <string name="peek">顶点</string>
     <string name="permission_external_storage_denied">访问外部存储权限被拒绝。</string>
     <string name="permission_summary">应用需要设备存储访问权限来播放音乐</string>
     <string name="permission_title">存储空间权限</string>

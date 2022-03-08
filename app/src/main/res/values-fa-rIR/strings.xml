@@ -210,6 +210,7 @@
     <string name="label_file_name">نام فایل</string>
     <string name="label_file_path">مسیر فایل</string>
     <string name="label_file_size">سایز</string>
+    <string name="label_last_modified">آخرین اصلاح</string>
     <string name="label_more_from">بیشتر از s%</string>
     <string name="label_sampling_rate">نرخ سمپل</string>
     <string name="label_track_length">مدت</string>
@@ -267,7 +268,7 @@
     <string name="past_three_months">3 ماه گذشته</string>
     <string name="paste_lyrics_here">متن را در اینجا بارگزاری کنید</string>
     <string name="paste_timeframe_lyrics_here">متون زمان دار را در اینجا بارگزاری کنید</string>
-    <string name="peak">حالت peak</string>
+    <string name="peek">حالت peek</string>
     <string name="permission_external_storage_denied">مجوز دسترسی به حافظه رد شد</string>
     <string name="permission_summary">برنامه نیاز به دسترسی به حافظه برای پخش آهنگ ها دارد</string>
     <string name="permission_title">دسترسی به حافظه</string>

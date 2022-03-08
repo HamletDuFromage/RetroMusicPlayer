@@ -214,6 +214,7 @@
     <string name="label_file_name">Nazwa pliku</string>
     <string name="label_file_path">Ścieżka pliku</string>
     <string name="label_file_size">Rozmiar</string>
+    <string name="label_last_modified">Ostatnia zmiana</string>
     <string name="label_more_from">Więcej z %s</string>
     <string name="label_sampling_rate">Częstotliwość próbkowania</string>
     <string name="label_track_length">Długość</string>
@@ -271,7 +272,7 @@
     <string name="past_three_months">Ostatnie 3 miesiące</string>
     <string name="paste_lyrics_here">Wklej tekst tutaj</string>
     <string name="paste_timeframe_lyrics_here">Paste timeframe lyrics here</string>
-    <string name="peak">Szczyt</string>
+    <string name="peek">Szczyt</string>
     <string name="permission_external_storage_denied">Odmowa dostępu do pamięci zewnętrznej.</string>
     <string name="permission_summary">The app needs permission to access your device storage for playing music</string>
     <string name="permission_title">Storage Access</string>
