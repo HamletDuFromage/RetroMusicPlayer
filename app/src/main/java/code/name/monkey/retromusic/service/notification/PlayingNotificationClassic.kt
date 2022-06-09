@@ -25,14 +25,17 @@ import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
+import androidx.core.graphics.drawable.toBitmap
 import code.name.monkey.appthemehelper.util.ATHUtil.resolveColor
 import code.name.monkey.appthemehelper.util.ColorUtil
 import code.name.monkey.appthemehelper.util.MaterialValueHelper
 import code.name.monkey.appthemehelper.util.VersionUtils
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.activities.MainActivity
+import code.name.monkey.retromusic.extensions.getTintedDrawable
 import code.name.monkey.retromusic.extensions.isColorLight
 import code.name.monkey.retromusic.extensions.isSystemDarkModeEnabled
+import code.name.monkey.retromusic.extensions.toBitmap
 import code.name.monkey.retromusic.glide.GlideApp
 import code.name.monkey.retromusic.glide.RetroGlideExtension
 import code.name.monkey.retromusic.glide.palette.BitmapPaletteWrapper
@@ -43,8 +46,6 @@ import code.name.monkey.retromusic.service.MusicService.Companion.ACTION_REWIND
 import code.name.monkey.retromusic.service.MusicService.Companion.ACTION_SKIP
 import code.name.monkey.retromusic.service.MusicService.Companion.ACTION_TOGGLE_PAUSE
 import code.name.monkey.retromusic.util.PreferenceUtil
-import code.name.monkey.retromusic.util.RetroUtil
-import code.name.monkey.retromusic.util.RetroUtil.createBitmap
 import code.name.monkey.retromusic.util.color.MediaNotificationProcessor
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
@@ -54,15 +55,29 @@ import com.bumptech.glide.request.transition.Transition
  */
 @SuppressLint("RestrictedApi")
 class PlayingNotificationClassic(
-    val context: Context
+    val context: Context,
 ) : PlayingNotification(context) {
-
     private var primaryColor: Int = 0
-    private var isInitialized = false
 
-    init {
-        val notificationLayout = getCombinedRemoteViews(true)
-        val notificationLayoutBig = getCombinedRemoteViews(false)
+    private fun getCombinedRemoteViews(collapsed: Boolean, song: Song): RemoteViews {
+        val remoteViews = RemoteViews(
+            context.packageName,
+            if (collapsed) R.layout.layout_notification_collapsed else R.layout.layout_notification_expanded
+        )
+        remoteViews.setTextViewText(
+            R.id.appName,
+            context.getString(R.string.app_name) + " • " + song.albumName
+        )
+        remoteViews.setTextViewText(R.id.title, song.title)
+        remoteViews.setTextViewText(R.id.subtitle, song.artistName)
+        linkButtons(remoteViews)
+        return remoteViews
+    }
+
+    override fun updateMetadata(song: Song, onUpdate: () -> Unit) {
+        if (song == Song.emptySong) return
+        val notificationLayout = getCombinedRemoteViews(true, song)
+        val notificationLayoutBig = getCombinedRemoteViews(false, song)
 
         val action = Intent(context, MainActivity::class.java)
         action.putExtra(MainActivity.EXPAND_PANEL, PreferenceUtil.isExpandPanel)
@@ -83,25 +98,11 @@ class PlayingNotificationClassic(
         setContentIntent(clickIntent)
         setDeleteIntent(deleteIntent)
         setCategory(NotificationCompat.CATEGORY_SERVICE)
-        setColorized(true)
         priority = NotificationCompat.PRIORITY_MAX
         setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
         setCustomContentView(notificationLayout)
         setCustomBigContentView(notificationLayoutBig)
         setOngoing(true)
-    }
-
-    private fun getCombinedRemoteViews(collapsed: Boolean): RemoteViews {
-        val remoteViews = RemoteViews(
-            context.packageName,
-            if (collapsed) R.layout.layout_notification_collapsed else R.layout.layout_notification_expanded
-        )
-        linkButtons(remoteViews)
-        return remoteViews
-    }
-
-    override fun updateMetadata(song: Song, onUpdate: () -> Unit) {
-        isInitialized = true
         val bigNotificationImageSize = context.resources
             .getDimensionPixelSize(R.dimen.notification_big_image_size)
         GlideApp.with(context).asBitmapPalette().songCoverOptions(song)
@@ -113,7 +114,7 @@ class PlayingNotificationClassic(
             ) {
                 override fun onResourceReady(
                     resource: BitmapPaletteWrapper,
-                    transition: Transition<in BitmapPaletteWrapper>?
+                    transition: Transition<in BitmapPaletteWrapper>?,
                 ) {
                     val colors = MediaNotificationProcessor(context, resource.bitmap)
                     update(resource.bitmap, colors.backgroundColor)
@@ -128,6 +129,10 @@ class PlayingNotificationClassic(
                 }
 
                 override fun onLoadCleared(placeholder: Drawable?) {
+                    update(
+                        null,
+                        resolveColor(context, R.attr.colorSurface, Color.WHITE)
+                    )
                 }
 
                 private fun update(bitmap: Bitmap?, bgColor: Int) {
@@ -158,6 +163,7 @@ class PlayingNotificationClassic(
                         setNotificationContent(ColorUtil.isColorLight(bgColorFinal))
                     } else {
                         if (PreferenceUtil.isColoredNotification) {
+                            setColorized(true)
                             color = bgColor
                             setNotificationContent(color.isColorLight)
                         } else {
@@ -177,27 +183,20 @@ class PlayingNotificationClassic(
                     val secondary = MaterialValueHelper.getSecondaryTextColor(context, dark)
                     primaryColor = primary
 
-                    val close = createBitmap(
-                        RetroUtil.getTintedVectorDrawable(
-                            context,
-                            R.drawable.ic_close,
-                            primary
-                        ), NOTIFICATION_CONTROLS_SIZE_MULTIPLIER
-                    )
-                    val prev = createBitmap(
-                        RetroUtil.getTintedVectorDrawable(
-                            context,
+                    val close = context.getTintedDrawable(
+                        R.drawable.ic_close,
+                        primary
+                    ).toBitmap()
+                    val prev =
+                        context.getTintedDrawable(
                             R.drawable.ic_skip_previous_round_white_32dp,
                             primary
-                        ), NOTIFICATION_CONTROLS_SIZE_MULTIPLIER
-                    )
-                    val next = createBitmap(
-                        RetroUtil.getTintedVectorDrawable(
-                            context,
+                        ).toBitmap()
+                    val next =
+                        context.getTintedDrawable(
                             R.drawable.ic_skip_next_round_white_32dp,
                             primary
-                        ), NOTIFICATION_CONTROLS_SIZE_MULTIPLIER
-                    )
+                        ).toBitmap()
                     val playPause = getPlayPauseBitmap(true)
 
                     contentView.setTextColor(R.id.title, primary)
@@ -208,14 +207,6 @@ class PlayingNotificationClassic(
                     contentView.setImageViewBitmap(R.id.action_next, next)
                     contentView.setImageViewBitmap(R.id.action_play_pause, playPause)
 
-                    contentView.setTextViewText(
-                        R.id.appName,
-                        context.getString(R.string.app_name) + " • " + song.albumName
-                    )
-                    contentView.setTextViewText(R.id.title, song.title)
-                    contentView.setTextViewText(R.id.subtitle, song.artistName)
-
-
                     bigContentView.setTextColor(R.id.title, primary)
                     bigContentView.setTextColor(R.id.subtitle, secondary)
                     bigContentView.setTextColor(R.id.appName, secondary)
@@ -225,66 +216,45 @@ class PlayingNotificationClassic(
                     bigContentView.setImageViewBitmap(R.id.action_next, next)
                     bigContentView.setImageViewBitmap(R.id.action_play_pause, playPause)
 
-                    bigContentView.setTextViewText(
-                        R.id.appName,
-                        context.getString(R.string.app_name) + " • " + song.albumName
-                    )
-                    bigContentView.setTextViewText(R.id.title, song.title)
-                    bigContentView.setTextViewText(R.id.subtitle, song.artistName)
-
-
                     contentView.setImageViewBitmap(
                         R.id.smallIcon,
-                        createBitmap(
-                            RetroUtil.getTintedVectorDrawable(
-                                context,
-                                R.drawable.ic_notification,
-                                secondary
-                            ), 0.6f
-                        )
+                        context.getTintedDrawable(
+                            R.drawable.ic_notification,
+                            secondary
+                        ).toBitmap(0.6f)
                     )
                     bigContentView.setImageViewBitmap(
                         R.id.smallIcon,
-                        createBitmap(
-                            RetroUtil.getTintedVectorDrawable(
-                                context,
-                                R.drawable.ic_notification,
-                                secondary
-                            ), 0.6f
-                        )
+                        context.getTintedDrawable(
+                            R.drawable.ic_notification,
+                            secondary
+                        ).toBitmap(0.6f)
                     )
                 }
             })
     }
 
     private fun getPlayPauseBitmap(isPlaying: Boolean): Bitmap {
-        return createBitmap(
-            RetroUtil.getTintedVectorDrawable(
-                context,
-                if (isPlaying)
-                    R.drawable.ic_pause_white_48dp
-                else
-                    R.drawable.ic_play_arrow_white_48dp, primaryColor
-            ), NOTIFICATION_CONTROLS_SIZE_MULTIPLIER
-        )
+        return context.getTintedDrawable(
+            if (isPlaying)
+                R.drawable.ic_pause_white_48dp
+            else
+                R.drawable.ic_play_arrow_white_48dp, primaryColor
+        ).toBitmap()
     }
 
-    override fun setPlaying(isPlaying: Boolean, onUpdate: () -> Unit) {
+    override fun setPlaying(isPlaying: Boolean) {
         getPlayPauseBitmap(isPlaying).also {
-            contentView.setImageViewBitmap(R.id.action_play_pause, it)
-            bigContentView.setImageViewBitmap(R.id.action_play_pause, it)
+            contentView?.setImageViewBitmap(R.id.action_play_pause, it)
+            bigContentView?.setImageViewBitmap(R.id.action_play_pause, it)
         }
     }
 
-    override fun updateFavorite(song: Song, onUpdate: () -> Unit) {
-        if (!isInitialized) {
-            updateMetadata(song, onUpdate)
-        }
-    }
+    override fun updateFavorite(isFavorite: Boolean) {}
 
     private fun buildPendingIntent(
         context: Context, action: String,
-        serviceName: ComponentName?
+        serviceName: ComponentName?,
     ): PendingIntent {
         val intent = Intent(action)
         intent.component = serviceName
@@ -321,7 +291,7 @@ class PlayingNotificationClassic(
     companion object {
         fun from(
             context: Context,
-            notificationManager: NotificationManager
+            notificationManager: NotificationManager,
         ): PlayingNotification {
             if (VersionUtils.hasOreo()) {
                 createNotificationChannel(context, notificationManager)

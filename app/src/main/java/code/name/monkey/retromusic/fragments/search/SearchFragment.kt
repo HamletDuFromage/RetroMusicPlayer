@@ -14,33 +14,27 @@
  */
 package code.name.monkey.retromusic.fragments.search
 
+import android.app.Activity.RESULT_OK
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.speech.RecognizerIntent
-import android.text.Editable
-import android.text.TextWatcher
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.inputmethod.InputMethodManager
-import androidx.annotation.IdRes
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.getSystemService
 import androidx.core.view.*
+import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.transition.TransitionManager
-import code.name.monkey.appthemehelper.ThemeStore
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.adapter.SearchAdapter
 import code.name.monkey.retromusic.databinding.FragmentSearchBinding
-import code.name.monkey.retromusic.extensions.accentColor
-import code.name.monkey.retromusic.extensions.dipToPix
-import code.name.monkey.retromusic.extensions.focusAndShowKeyboard
-import code.name.monkey.retromusic.extensions.showToast
+import code.name.monkey.retromusic.extensions.*
 import code.name.monkey.retromusic.fragments.base.AbsMainActivityFragment
 import code.name.monkey.retromusic.util.PreferenceUtil
-import code.name.monkey.retromusic.views.addAlpha
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.shape.MaterialShapeDrawable
@@ -51,11 +45,10 @@ import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 import java.util.*
 
 
-class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search), TextWatcher,
-    ChipGroup.OnCheckedChangeListener {
+class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
+    ChipGroup.OnCheckedStateChangeListener {
     companion object {
         const val QUERY = "query"
-        const val REQ_CODE_SPEECH_INPUT = 9001
     }
 
     private var _binding: FragmentSearchBinding? = null
@@ -81,7 +74,15 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search), TextWa
             searchAdapter.swapDataSet(listOf())
         }
         binding.searchView.apply {
-            addTextChangedListener(this@SearchFragment)
+            doAfterTextChanged {
+                if (!it.isNullOrEmpty())
+                    search(it.toString())
+                else {
+                    TransitionManager.beginDelayedTransition(binding.appBarLayout)
+                    binding.voiceSearch.isVisible = true
+                    binding.clearText.isGone = true
+                }
+            }
             focusAndShowKeyboard()
         }
         binding.keyboardPopup.apply {
@@ -127,14 +128,14 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search), TextWa
 
             val colors = intArrayOf(
                 android.R.color.transparent,
-                ThemeStore.accentColor(requireContext()).addAlpha(0.5F)
+                accentColor().addAlpha(0.5F)
             )
 
             chips.forEach {
                 it.chipBackgroundColor = ColorStateList(states, colors)
             }
         }
-        binding.searchFilterGroup.setOnCheckedChangeListener(this)
+        binding.searchFilterGroup.setOnCheckedStateChangeListener(this)
     }
 
     private fun showData(data: List<Any>) {
@@ -145,14 +146,20 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search), TextWa
         }
     }
 
+    private fun checkForMargins() {
+        if (mainActivity.isBottomNavVisible) {
+            binding.recyclerView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                bottomMargin = dip(R.dimen.bottom_nav_height)
+            }
+        }
+    }
+
     private fun setupRecyclerView() {
         searchAdapter = SearchAdapter(requireActivity(), emptyList())
         searchAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
             override fun onChanged() {
                 super.onChanged()
                 binding.empty.isVisible = searchAdapter.itemCount < 1
-                val height = dipToPix(52f)
-                binding.recyclerView.updatePadding(bottom = height.toInt())
             }
         })
         binding.recyclerView.apply {
@@ -169,16 +176,6 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search), TextWa
                 }
             })
         }
-    }
-
-    override fun afterTextChanged(newText: Editable?) {
-        if (!newText.isNullOrEmpty()) search(newText.toString())
-    }
-
-    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-    }
-
-    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
     }
 
     private fun search(query: String) {
@@ -212,14 +209,25 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search), TextWa
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.speech_prompt))
         try {
-            startActivityForResult(
-                intent,
-                REQ_CODE_SPEECH_INPUT
-            )
+            speechInputLauncher.launch(intent)
         } catch (e: ActivityNotFoundException) {
             e.printStackTrace()
             showToast(getString(R.string.speech_not_supported))
         }
+    }
+
+    private val speechInputLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val spokenText: String? =
+                    result?.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.get(0)
+                binding.searchView.setText(spokenText)
+            }
+        }
+
+    override fun onResume() {
+        super.onResume()
+        checkForMargins()
     }
 
     override fun onDestroyView() {
@@ -241,9 +249,13 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search), TextWa
         }
     }
 
-    override fun onCheckedChanged(group: ChipGroup?, @IdRes checkedId: Int) {
+    override fun onCheckedChanged(group: ChipGroup, checkedIds: MutableList<Int>) {
         search(binding.searchView.text.toString())
     }
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {}
+
+    override fun onMenuItemSelected(menuItem: MenuItem) = false
 }
 
 enum class Filter {

@@ -17,7 +17,6 @@
             app:icon="@drawable/ic_color_lens" />
 
         <code.name.monkey.appthemehelper.common.prefs.supportv7.ATESwitchPreference
-            android:dependency="material_you"
             android:key="black_theme"
             android:layout="@layout/list_item_view_switch_no_title"
             android:title="@string/black_theme_name" />
@@ -48,7 +47,8 @@
             android:key="wallpaper_accent"
             android:layout="@layout/list_item_view_switch"
             android:summary="@string/pref_summary_wallpaper_accent"
-            android:title="@string/pref_title_wallpaper_accent" />
+            android:title="@string/pref_title_wallpaper_accent"
+            app:isPreferenceVisible="@bool/wallpaper_accent_visible" />
 
         <code.name.monkey.appthemehelper.common.prefs.supportv7.ATEColorPreference
             android:dependency="material_you"

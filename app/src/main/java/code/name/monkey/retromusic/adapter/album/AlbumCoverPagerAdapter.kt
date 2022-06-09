@@ -19,7 +19,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.core.view.ViewCompat
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
@@ -85,7 +85,6 @@ class AlbumCoverPagerAdapter(
 
     class AlbumCoverFragment : Fragment() {
 
-        private lateinit var albumCover: ImageView
         private var isColorReady: Boolean = false
         private lateinit var color: MediaNotificationProcessor
         private lateinit var song: Song
@@ -106,8 +105,6 @@ class AlbumCoverPagerAdapter(
             savedInstanceState: Bundle?
         ): View? {
             val view = inflater.inflate(getLayoutWithPlayerTheme(), container, false)
-            ViewCompat.setTransitionName(view, "lyrics")
-            albumCover = view.findViewById(R.id.player_image)
             view.setOnClickListener {
                 if (mainActivity.getBottomSheetBehavior().state == STATE_EXPANDED) {
                     showLyricsDialog()
@@ -158,7 +155,7 @@ class AlbumCoverPagerAdapter(
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
-            loadAlbumCover()
+            loadAlbumCover(albumCover = view.findViewById(R.id.player_image))
         }
 
         override fun onDestroyView() {
@@ -166,7 +163,7 @@ class AlbumCoverPagerAdapter(
             colorReceiver = null
         }
 
-        private fun loadAlbumCover() {
+        private fun loadAlbumCover(albumCover: ImageView) {
             GlideApp.with(this).asBitmapPalette().songCoverOptions(song)
                 //.checkIgnoreMediaStore()
                 .load(RetroGlideExtension.getSongModel(song))
@@ -206,9 +203,7 @@ class AlbumCoverPagerAdapter(
 
             fun newInstance(song: Song): AlbumCoverFragment {
                 val frag = AlbumCoverFragment()
-                val args = Bundle()
-                args.putParcelable(SONG_ARG, song)
-                frag.arguments = args
+                frag.arguments = bundleOf(SONG_ARG to song)
                 return frag
             }
         }

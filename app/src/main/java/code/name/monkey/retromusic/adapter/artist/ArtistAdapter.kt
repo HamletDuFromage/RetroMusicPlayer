@@ -21,7 +21,6 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.ViewCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import code.name.monkey.retromusic.R
@@ -93,9 +92,9 @@ class ArtistAdapter(
         val transitionName =
             if (albumArtistsOnly) artist.name else artist.id.toString()
         if (holder.imageContainer != null) {
-            ViewCompat.setTransitionName(holder.imageContainer!!, transitionName)
+            holder.imageContainer?.transitionName = transitionName
         } else {
-            ViewCompat.setTransitionName(holder.image!!, transitionName)
+            holder.image?.transitionName = transitionName
         }
         loadArtistImage(artist, holder)
     }
@@ -133,8 +132,8 @@ class ArtistAdapter(
         return dataSet[position]
     }
 
-    override fun getName(artist: Artist): String {
-        return artist.name
+    override fun getName(model: Artist): String {
+        return model.name
     }
 
     override fun onMultipleItemAction(

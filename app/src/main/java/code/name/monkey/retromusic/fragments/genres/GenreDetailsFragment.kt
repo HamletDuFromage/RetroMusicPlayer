@@ -19,7 +19,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import androidx.core.view.ViewCompat
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.isVisible
 import androidx.navigation.fragment.navArgs
@@ -54,10 +53,9 @@ class GenreDetailsFragment : AbsMainActivityFragment(R.layout.fragment_playlist_
         enterTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true).addTarget(view)
         returnTransition = MaterialSharedAxis(MaterialSharedAxis.Z, false)
         _binding = FragmentPlaylistDetailBinding.bind(view)
-        setHasOptionsMenu(true)
         mainActivity.addMusicServiceEventListener(detailsViewModel)
         mainActivity.setSupportActionBar(binding.toolbar)
-        ViewCompat.setTransitionName(binding.container, "genre")
+        binding.container.transitionName = "genre"
         genre = arguments.extraGenre
         binding.toolbar.title = arguments.extraGenre.name
         setupRecyclerView()
@@ -108,12 +106,11 @@ class GenreDetailsFragment : AbsMainActivityFragment(R.layout.fragment_playlist_
         binding.recyclerView.setPadding(0, 0, 0, height)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
+    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_genre_detail, menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onMenuItemSelected(item: MenuItem): Boolean {
         return GenreMenuHelper.handleMenuClick(requireActivity(), genre, item)
     }
 

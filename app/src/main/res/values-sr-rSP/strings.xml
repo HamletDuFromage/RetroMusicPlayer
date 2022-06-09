@@ -9,6 +9,7 @@
     <string name="action_add_to_favorites">Dodaj u omiljene</string>
     <string name="action_add_to_playing_queue">Dodaj u listu za pustanje</string>
     <string name="action_add_to_playlist">Dodaj na plejlistu</string>
+    <string name="action_cancel">Otkazi trenutni tajmer</string>
     <string name="action_cast">Cast</string>
     <string name="action_clear_playing_queue">Izbrisi trenutnu plejlistu za pustanje</string>
     <string name="action_cycle_repeat">Cycle repeat mode</string>
@@ -54,6 +55,7 @@
     <string name="add_action">Dodaj</string>
     <string name="add_playlist_title">"Dodaj na plejlistu"</string>
     <string name="add_time_framed_lryics">Add Time Framed Lyrics</string>
+    <string name="added_song_count_to_playlist">Added %1$d song(s) to %2$s</string>
     <string name="added_title_to_playing_queue">"Dodata je 1 pesma na plejlistu"</string>
     <string name="added_x_titles_to_playing_queue">Dodato %1$d pesama na plejlistu</string>
     <string name="album">Album</string>
@@ -75,7 +77,6 @@
     <string name="app_shortcut_top_tracks_short">Najvise slusano</string>
     <string name="app_widget_big_name">Full Image</string>
     <string name="app_widget_card_name">Card</string>
-    <string name="app_widget_circle_name">@string/circle</string>
     <string name="app_widget_classic_name">Classic</string>
     <string name="app_widget_md3_name">MD3</string>
     <string name="app_widget_small_name">Small</string>
@@ -92,6 +93,7 @@
     <string name="biography">Biografija</string>
     <string name="black_theme_name">Perfektno crna</string>
     <string name="blacklist">Ne trazi muziku u...</string>
+    <string name="bluetooth_summary">The app needs nearby devices permission to check for bluetooth devices</string>
     <string name="blur">Blur</string>
     <string name="blur_card">Blur Card</string>
     <string name="bug_report_failed">Unable to send report</string>
@@ -105,6 +107,7 @@
     <string name="bug_report_no_password">Please enter your valid GitHub password</string>
     <string name="bug_report_no_title">Please enter an issue title</string>
     <string name="bug_report_no_username">Please enter your valid GitHub username</string>
+    <string name="bug_report_success">Bug report successful</string>
     <string name="bug_report_summary">An unexpected error occurred. Sorry you found this bug, if it keeps crashing \"Clear app data\" or send an Email </string>
     <string name="bug_report_use_account">Send using GitHub account</string>
     <string name="buy_now">Buy now</string>
@@ -117,15 +120,18 @@
     <string name="cascading">Cascading</string>
     <string name="changelog">Izmene</string>
     <string name="changelog_summary">Check out What\'s New</string>
+    <string name="choose_image">Choose Image</string>
     <string name="choose_restore_title">Choose what to restore</string>
     <string name="circle">Circle</string>
     <string name="circular">Circular</string>
     <string name="classic">Classic</string>
     <string name="clear_action">Ocisti</string>
     <string name="clear_blacklist">Ocisti listu za ignorisanje foldera</string>
+    <string name="clear_history">Clear History</string>
     <string name="clear_playing_queue">Clear queue</string>
     <string name="color">Color</string>
     <string name="colors">Boje</string>
+    <string name="compact">Compact</string>
     <string name="composer">Composer</string>
     <string name="copied_device_info_to_clipboard">Copied device info to clipboard.</string>
     <string name="could_not_create_playlist">Nemoguce je napraviti plejlistu</string>
@@ -138,6 +144,7 @@
     <string name="credit_title">Members and contributors </string>
     <string name="currently_listening_to_x_by_x">Trenutno se reprodukuje %1$s izvodjaca %2$s</string>
     <string name="custom_artist_images">Custom Artist Images</string>
+    <string name="customactivityoncrash_error_activity_error_details_share">Share Crash Report</string>
     <string name="dark_theme_name">Kao tamno</string>
     <string name="delete_playlist_title">Izbrisi plejlistu</string>
     <string name="delete_playlist_x"><![CDATA[Izbrisi <b>%1$s</b> plejlistu?]]></string>
@@ -167,8 +174,15 @@
     <string name="edit_synced_lyrics">Edit Synced Lyrics</string>
     <string name="empty">Nema pesama</string>
     <string name="equalizer">Ekvilajzer</string>
+    <string name="error_create_backup">Couldn\u2019t create backup</string>
+    <string name="error_delete_backup">Couldn\u2019t delete backup</string>
+    <string name="error_empty_name">Your name can\'t be empty!</string>
+    <string name="error_load_failed">Load failed</string>
+    <string name="error_share_file">Couldn\'t share file</string>
+    <string name="expanded">Expanded</string>
     <string name="faq">FAQ</string>
     <string name="favorites">Favoriti</string>
+    <string name="file_already_exists">File already exists</string>
     <string name="finish_last_song">Finish last song</string>
     <string name="fit">Fit</string>
     <string name="flat">Ravno</string>
@@ -184,6 +198,7 @@
     <string name="genres">Genres</string>
     <string name="git_hub_summary">Fork the project on GitHub</string>
     <string name="gradient">Gradient</string>
+    <string name="grant_access">Grant access</string>
     <string name="grid_size_1">1</string>
     <string name="grid_size_2">2</string>
     <string name="grid_size_3">3</string>
@@ -196,6 +211,8 @@
     <string name="help_summary">Need more help?</string>
     <string name="hinge">Hinge</string>
     <string name="history">Istorija reprodukovanja</string>
+    <string name="history_cleared">History cleared</string>
+    <string name="history_undo_button">Undo</string>
     <string name="home">Pocetak</string>
     <string name="horizontal_flip">Horizontal flip</string>
     <string name="image">Image</string>
@@ -212,13 +229,14 @@
     <string name="label_file_name">Naziv datoteke</string>
     <string name="label_file_path">Lokacija datoteke</string>
     <string name="label_file_size">Velicina</string>
-    <string name="label_last_modified">Zadnja izmjena</string>
+    <string name="label_last_modified">Last Modified</string>
     <string name="label_more_from">More from %s</string>
     <string name="label_sampling_rate">Brzina uzorkovanja</string>
     <string name="label_track_length">Duzina trajanja</string>
     <string name="labeled">Labeled</string>
     <string name="last_added">Poslednje dodato</string>
     <string name="last_song">Last song</string>
+    <string name="lets_go">Let\'s go</string>
     <string name="library_categories">Library categories</string>
     <string name="licenses">Licence</string>
     <string name="light_theme_name">Perfektno bela</string>
@@ -231,6 +249,12 @@
     <string name="material">Material</string>
     <string name="md_error_label">Error</string>
     <string name="md_storage_perm_error">Permission error</string>
+    <string name="message_backup_create_success">Backup created successfully.</string>
+    <string name="message_limit_tabs">Not more than 5 items</string>
+    <string name="message_pro_feature">%s is a Pro feature.</string>
+    <string name="message_restore_success">Restore completed successfully.</string>
+    <string name="message_updated">Updated</string>
+    <string name="message_welcome"><![CDATA[Hello there! <br>Welcome to %s]]></string>
     <string name="my_name">Moje ime je</string>
     <string name="my_top_tracks">Najslusanije numere</string>
     <string name="never">Nikada</string>
@@ -271,6 +295,7 @@
     <string name="paste_lyrics_here">Paste Lyrics Here</string>
     <string name="paste_timeframe_lyrics_here">Paste timeframe lyrics here</string>
     <string name="peek">Peek</string>
+    <string name="permission_bluetooth_denied">Nearby devices permission denied.</string>
     <string name="permission_external_storage_denied">Dozvola za pristup spoljasnjem skladistu je odbijena</string>
     <string name="permission_summary">The app needs permission to access your device storage for playing music</string>
     <string name="permission_title">Storage Access</string>
@@ -281,11 +306,13 @@
     <string name="pinterest_page">Pinterest</string>
     <string name="pinterest_page_summary">Follow Pinterest page for Retro Music design inspiration</string>
     <string name="plain">Jednostavan</string>
+    <string name="playList_already_exits">Playlist already exists</string>
     <string name="playback_pitch">Pitch</string>
     <string name="playback_settings">Playback Settings</string>
     <string name="playback_speed">Playback Speed</string>
     <string name="playing_notification_description">Obavestenja obezbedjuju komande za pustanje/pauziranje itd.</string>
     <string name="playing_notification_name">Obavestenja o reprodukciji</string>
+    <string name="playlist_created_sucessfully">%s created successfully</string>
     <string name="playlist_is_empty">Plejlista je prazna</string>
     <string name="playlist_name_empty">Ime plejliste</string>
     <string name="playlists">Plejliste</string>
@@ -331,10 +358,14 @@
     <string name="pref_summary_ignore_media_store_artwork">oze poboljsati kvalitet omota albuma ali uzrokuje njegovo sporije ucitavanje. Omoguci ovo samo ukoliko imas problema sa losim kvalitetom slike omota albuma.</string>
     <string name="pref_summary_library_categories">Configure visibility and order of library categories.</string>
     <string name="pref_summary_lock_screen">Prikazuj kontrole na zakljucanom ekranu</string>
+    <string name="pref_summary_manage_audio_focus">Always play audio in background regardless of anything else being played</string>
     <string name="pref_summary_open_source_licences">Detalji o licencama za softver otvorenog izvora</string>
+    <string name="pref_summary_pause_history">When enabled, newly played songs won\'t show in history</string>
     <string name="pref_summary_remember_tab">Navigate to the last used tab on start</string>
     <string name="pref_summary_show_lyrics">Display synced lyrics over album cover</string>
     <string name="pref_summary_suggestions">Show New Music Mix on homescreen</string>
+    <string name="pref_summary_swipe_anywhere_now_playing">Enables changing song by swiping anywhere on the now playing screen</string>
+    <string name="pref_summary_swipe_to_dismiss">Swipe down to dismiss mini player</string>
     <string name="pref_summary_toggle_full_screen">Omoguci ovo za impresivan mod.</string>
     <string name="pref_summary_toggle_headset">Kada se prikljuce slusalice automatki pusti pesme</string>
     <string name="pref_summary_toggle_shuffle">Shuffle mode will turn off when playing a new list of songs</string>
@@ -346,7 +377,7 @@
     <string name="pref_title_album_cover_style">Album cover theme</string>
     <string name="pref_title_album_cover_transform">Album cover skip</string>
     <string name="pref_title_app_shortcuts">Obojene ikone aplikacije</string>
-    <string name="pref_title_appbar_mode">App bar mode</string>
+    <string name="pref_title_appbar_mode">Header style</string>
     <string name="pref_title_audio_ducking">Utisaj zvuk prilikom poziva i drugih obavestenja.</string>
     <string name="pref_title_audio_fade">Fade audio</string>
     <string name="pref_title_auto_download_artist_images">Automatski preuzmi sliku izvodjaca</string>
@@ -373,11 +404,15 @@
     <string name="pref_title_lock_screen">Kontrole preko celog ekrana</string>
     <string name="pref_title_lyrics_screen_on">Keep screen on when showing lyrics</string>
     <string name="pref_title_lyrics_type">Lyrics type</string>
+    <string name="pref_title_manage_audio_focus">Always play</string>
     <string name="pref_title_now_playing_screen_appearance">Izgled</string>
     <string name="pref_title_open_source_licences">Otvoren izvor licenca</string>
+    <string name="pref_title_pause_history">Pause history</string>
     <string name="pref_title_remember_tab">Remember last tab</string>
     <string name="pref_title_show_lyrics">Show lyrics</string>
     <string name="pref_title_suggestions">Show suggestions</string>
+    <string name="pref_title_swipe_anywhere_now_playing">Swipe anywhere to change song</string>
+    <string name="pref_title_swipe_to_dismiss">Dismiss with swipe down</string>
     <string name="pref_title_tab_text_mode">Tab titles mode</string>
     <string name="pref_title_toggle_carousel_effect">Carousel effect</string>
     <string name="pref_title_toggle_full_screen">Aplikacija preko celog ekrana</string>
@@ -398,6 +433,7 @@
     <string name="remove_action">Izbrisi</string>
     <string name="remove_cover">Izbrisi omot albuma</string>
     <string name="remove_from_blacklist">Izbrisi sa liste za ignorisanje foldera</string>
+    <string name="remove_image">Remove Image</string>
     <string name="remove_song_from_playlist_title">Izbrisi pesmu sa plejliste</string>
     <string name="remove_song_x_from_playlist"><![CDATA[Obrisi <b>%1$s</b> sa plejliste?]]></string>
     <string name="remove_songs_from_playlist_title">Izbrisi pesme sa plejliste</string>
@@ -459,11 +495,11 @@
     <string name="sort_order">Nacin sortiranja</string>
     <string name="sort_order_a_z">Ascending</string>
     <string name="sort_order_album">Album</string>
-    <string name="sort_order_album_artist">@string/album_artist</string>
     <string name="sort_order_artist">Izvodjac</string>
     <string name="sort_order_composer">Composer</string>
     <string name="sort_order_date">Date added</string>
     <string name="sort_order_date_modified">Date modified</string>
+    <string name="sort_order_default">Default</string>
     <string name="sort_order_num_songs">Song count</string>
     <string name="sort_order_num_songs_desc">Song count desc</string>
     <string name="sort_order_year">Year</string>
@@ -523,4 +559,5 @@
     <string name="you_have_to_select_at_least_one_category">You have to select at least one category.</string>
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">You will be forwarded to the issue tracker website.</string>
     <string name="your_account_data_is_only_used_for_authentication">Your account data is only used for authentication.</string>
+    <string name="bluetooth_title">Nearby devices</string>
 </resources>

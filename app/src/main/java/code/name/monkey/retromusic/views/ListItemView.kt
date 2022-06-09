@@ -18,6 +18,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.FrameLayout
+import androidx.core.content.withStyledAttributes
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.databinding.ListItemViewNoCardBinding
 import code.name.monkey.retromusic.extensions.hide
@@ -26,43 +27,30 @@ import code.name.monkey.retromusic.extensions.show
 /**
  * Created by hemanths on 2019-10-02.
  */
-class ListItemView : FrameLayout {
+class ListItemView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = -1
+) : FrameLayout(context, attrs, defStyleAttr) {
 
-    private lateinit var binding: ListItemViewNoCardBinding
+    private var binding =
+        ListItemViewNoCardBinding.inflate(LayoutInflater.from(context), this, true)
 
-    constructor(context: Context) : super(context) {
-        init(context, null)
-    }
+    init {
+        context.withStyledAttributes(attrs, R.styleable.ListItemView) {
+            if (hasValue(R.styleable.ListItemView_listItemIcon)) {
+                binding.icon.setImageDrawable(getDrawable(R.styleable.ListItemView_listItemIcon))
+            } else {
+                binding.icon.hide()
+            }
 
-    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
-        init(context, attrs)
-    }
-
-    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(
-        context,
-        attrs,
-        defStyleAttr
-    ) {
-        init(context, attrs)
-    }
-
-    private fun init(context: Context, attrs: AttributeSet?) {
-        binding = ListItemViewNoCardBinding.inflate(LayoutInflater.from(context), this, true)
-
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.ListItemView)
-        if (typedArray.hasValue(R.styleable.ListItemView_listItemIcon)) {
-            binding.icon.setImageDrawable(typedArray.getDrawable(R.styleable.ListItemView_listItemIcon))
-        } else {
-            binding.icon.hide()
+            binding.title.text = getText(R.styleable.ListItemView_listItemTitle)
+            if (hasValue(R.styleable.ListItemView_listItemSummary)) {
+                binding.summary.text = getText(R.styleable.ListItemView_listItemSummary)
+            } else {
+                binding.summary.hide()
+            }
         }
-
-        binding.title.text = typedArray.getText(R.styleable.ListItemView_listItemTitle)
-        if (typedArray.hasValue(R.styleable.ListItemView_listItemSummary)) {
-            binding.summary.text = typedArray.getText(R.styleable.ListItemView_listItemSummary)
-        } else {
-            binding.summary.hide()
-        }
-        typedArray.recycle()
     }
 
     fun setSummary(appVersion: String) {

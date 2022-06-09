@@ -22,8 +22,7 @@ import android.view.*
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
-import androidx.core.text.HtmlCompat
-import androidx.core.view.ViewCompat
+import androidx.core.text.parseAsHtml
 import androidx.core.view.doOnPreDraw
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.FragmentNavigatorExtras
@@ -32,6 +31,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.transition.Fade
 import code.name.monkey.appthemehelper.common.ATHToolbarActivity.getToolbarBackgroundColor
 import code.name.monkey.appthemehelper.util.ToolbarContentTintHelper
 import code.name.monkey.retromusic.EXTRA_ALBUM_ID
@@ -63,10 +63,7 @@ import code.name.monkey.retromusic.model.Artist
 import code.name.monkey.retromusic.network.Result
 import code.name.monkey.retromusic.network.model.LastFmAlbum
 import code.name.monkey.retromusic.repository.RealRepository
-import code.name.monkey.retromusic.util.MusicUtil
-import code.name.monkey.retromusic.util.PreferenceUtil
-import code.name.monkey.retromusic.util.RetroColorUtil
-import code.name.monkey.retromusic.util.RetroUtil
+import code.name.monkey.retromusic.util.*
 import com.afollestad.materialcab.attached.AttachedCab
 import com.afollestad.materialcab.attached.destroy
 import com.afollestad.materialcab.attached.isActive
@@ -80,6 +77,7 @@ import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.get
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
+import java.text.Collator
 
 class AlbumDetailsFragment : AbsMainActivityFragment(R.layout.fragment_album_details),
     IAlbumClickListener, ICabHolder {
@@ -112,23 +110,24 @@ class AlbumDetailsFragment : AbsMainActivityFragment(R.layout.fragment_album_det
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentAlbumDetailsBinding.bind(view)
-        setHasOptionsMenu(true)
+        enterTransition = Fade()
+        exitTransition = Fade()
         mainActivity.addMusicServiceEventListener(detailsViewModel)
         mainActivity.setSupportActionBar(binding.toolbar)
 
         binding.toolbar.title = " "
-        ViewCompat.setTransitionName(binding.albumCoverContainer, arguments.extraAlbumId.toString())
+        binding.albumCoverContainer.transitionName = arguments.extraAlbumId.toString()
         postponeEnterTransition()
         detailsViewModel.getAlbum().observe(viewLifecycleOwner) {
-            requireView().doOnPreDraw {
+            view.doOnPreDraw {
                 startPostponedEnterTransition()
             }
             albumArtistExists = !it.albumArtist.isNullOrEmpty()
             showAlbum(it)
-            if (albumArtistExists) {
-                ViewCompat.setTransitionName(binding.artistImage, album.albumArtist)
+            binding.artistImage.transitionName = if (albumArtistExists) {
+                album.albumArtist
             } else {
-                ViewCompat.setTransitionName(binding.artistImage, album.artistId.toString())
+                album.artistId.toString()
             }
         }
 
@@ -246,10 +245,10 @@ class AlbumDetailsFragment : AbsMainActivityFragment(R.layout.fragment_album_det
         detailsViewModel.getAlbumInfo(album).observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Result.Loading -> {
-                    println("Loading")
+                    logD("Loading")
                 }
                 is Result.Error -> {
-                    println("Error")
+                    logE("Error")
                 }
                 is Result.Success -> {
                     aboutAlbum(result.data)
@@ -282,10 +281,8 @@ class AlbumDetailsFragment : AbsMainActivityFragment(R.layout.fragment_album_det
                 binding.fragmentAlbumContent.aboutAlbumTitle.show()
                 binding.fragmentAlbumContent.aboutAlbumTitle.text =
                     String.format(getString(R.string.about_album_label), lastFmAlbum.album.name)
-                binding.fragmentAlbumContent.aboutAlbumText.text = HtmlCompat.fromHtml(
-                    lastFmAlbum.album.wiki.content,
-                    HtmlCompat.FROM_HTML_MODE_LEGACY
-                )
+                binding.fragmentAlbumContent.aboutAlbumText.text =
+                    lastFmAlbum.album.wiki.content.parseAsHtml()
             }
             if (lastFmAlbum.album.listeners.isNotEmpty()) {
                 binding.fragmentAlbumContent.listeners.show()
@@ -310,7 +307,7 @@ class AlbumDetailsFragment : AbsMainActivityFragment(R.layout.fragment_album_det
             .load(
                 RetroGlideExtension.getArtistModel(
                     artist,
-                    PreferenceUtil.isAllowedToDownloadMetadata()
+                    PreferenceUtil.isAllowedToDownloadMetadata(requireContext())
                 )
             )
             .artistImageOptions(artist)
@@ -349,8 +346,7 @@ class AlbumDetailsFragment : AbsMainActivityFragment(R.layout.fragment_album_det
         )
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
+    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_album_detail, menu)
         val sortOrder = menu.findItem(R.id.action_sort_order)
         setUpSortOrderMenu(sortOrder.subMenu)
@@ -362,7 +358,7 @@ class AlbumDetailsFragment : AbsMainActivityFragment(R.layout.fragment_album_det
         )
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onMenuItemSelected(item: MenuItem): Boolean {
         return handleSortOrderMenuItem(item)
     }
 
@@ -437,15 +433,13 @@ class AlbumDetailsFragment : AbsMainActivityFragment(R.layout.fragment_album_det
                     o2.trackNumber
                 )
             }
-            SONG_A_Z -> album.songs.sortedWith { o1, o2 ->
-                o1.title.compareTo(
-                    o2.title
-                )
+            SONG_A_Z -> {
+                val collator = Collator.getInstance()
+                album.songs.sortedWith { o1, o2 -> collator.compare(o1.title, o2.title) }
             }
-            SONG_Z_A -> album.songs.sortedWith { o1, o2 ->
-                o2.title.compareTo(
-                    o1.title
-                )
+            SONG_Z_A -> {
+                val collator = Collator.getInstance()
+                album.songs.sortedWith { o1, o2 -> collator.compare(o2.title, o1.title) }
             }
             SONG_DURATION -> album.songs.sortedWith { o1, o2 ->
                 o1.duration.compareTo(

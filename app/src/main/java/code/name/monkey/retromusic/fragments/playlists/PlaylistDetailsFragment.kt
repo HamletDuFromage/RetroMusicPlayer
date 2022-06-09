@@ -1,14 +1,14 @@
 package code.name.monkey.retromusic.fragments.playlists
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import androidx.activity.addCallback
-import androidx.core.view.ViewCompat
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.isVisible
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,10 +17,8 @@ import code.name.monkey.retromusic.adapter.song.OrderablePlaylistSongAdapter
 import code.name.monkey.retromusic.databinding.FragmentPlaylistDetailBinding
 import code.name.monkey.retromusic.db.PlaylistWithSongs
 import code.name.monkey.retromusic.db.toSongs
-import code.name.monkey.retromusic.extensions.dip
 import code.name.monkey.retromusic.extensions.surfaceColor
 import code.name.monkey.retromusic.fragments.base.AbsMainActivityFragment
-import code.name.monkey.retromusic.helper.MusicPlayerRemote
 import code.name.monkey.retromusic.helper.menu.PlaylistMenuHelper
 import code.name.monkey.retromusic.interfaces.ICabCallback
 import code.name.monkey.retromusic.interfaces.ICabHolder
@@ -31,6 +29,8 @@ import com.afollestad.materialcab.attached.destroy
 import com.afollestad.materialcab.attached.isActive
 import com.afollestad.materialcab.createCab
 import com.google.android.material.shape.MaterialShapeDrawable
+import com.google.android.material.transition.MaterialArcMotion
+import com.google.android.material.transition.MaterialContainerTransform
 import com.google.android.material.transition.MaterialSharedAxis
 import com.h6ah4i.android.widget.advrecyclerview.animator.DraggableItemAnimator
 import com.h6ah4i.android.widget.advrecyclerview.animator.GeneralItemAnimator
@@ -52,29 +52,36 @@ class PlaylistDetailsFragment : AbsMainActivityFragment(R.layout.fragment_playli
     private lateinit var playlist: PlaylistWithSongs
     private lateinit var playlistSongAdapter: OrderablePlaylistSongAdapter
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        sharedElementEnterTransition = MaterialContainerTransform(requireContext(), true).apply {
+            drawingViewId = R.id.fragment_container
+            scrimColor = Color.TRANSPARENT
+            setAllContainerColors(surfaceColor())
+            setPathMotion(MaterialArcMotion())
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentPlaylistDetailBinding.bind(view)
         enterTransition = MaterialSharedAxis(MaterialSharedAxis.Z, true).addTarget(view)
         returnTransition = MaterialSharedAxis(MaterialSharedAxis.Z, false)
-        setHasOptionsMenu(true)
-        mainActivity.addMusicServiceEventListener(viewModel)
         mainActivity.setSupportActionBar(binding.toolbar)
-        ViewCompat.setTransitionName(binding.container, "playlist")
+        binding.container.transitionName = "playlist"
         playlist = arguments.extraPlaylist
         binding.toolbar.title = playlist.playlistEntity.playlistName
         setUpRecyclerView()
         viewModel.getSongs().observe(viewLifecycleOwner) {
             songs(it.toSongs())
         }
-        postponeEnterTransition()
-        requireView().doOnPreDraw { startPostponedEnterTransition() }
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-            if (!handleBackPress()) {
-                remove()
-                requireActivity().onBackPressed()
+        viewModel.playlistExists().observe(viewLifecycleOwner) {
+            if (!it) {
+                findNavController().navigateUp()
             }
         }
+        postponeEnterTransition()
+        view.doOnPreDraw { startPostponedEnterTransition() }
         binding.appBarLayout.statusBarForeground =
             MaterialShapeDrawable.createWithElevationOverlay(requireContext())
     }
@@ -112,26 +119,15 @@ class PlaylistDetailsFragment : AbsMainActivityFragment(R.layout.fragment_playli
         })
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
+    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_playlist_detail, menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onMenuItemSelected(item: MenuItem): Boolean {
         return PlaylistMenuHelper.handleMenuClick(requireActivity(), playlist, item)
     }
 
-    private fun checkForPadding() {
-        val itemCount: Int = playlistSongAdapter.itemCount
-        if (itemCount > 0 && MusicPlayerRemote.playingQueue.isNotEmpty()) {
-            binding.recyclerView.updatePadding(bottom = dip(R.dimen.mini_player_height))
-        } else {
-            binding.recyclerView.updatePadding(bottom = 0)
-        }
-    }
-
     private fun checkIsEmpty() {
-        checkForPadding()
         binding.empty.isVisible = playlistSongAdapter.itemCount == 0
         binding.emptyText.isVisible = playlistSongAdapter.itemCount == 0
     }
@@ -165,21 +161,10 @@ class PlaylistDetailsFragment : AbsMainActivityFragment(R.layout.fragment_playli
         _binding = null
     }
 
-    private fun handleBackPress(): Boolean {
-        cab?.let {
-            if (it.isActive()) {
-                it.destroy()
-                return true
-            }
-        }
-        return false
-    }
-
     private var cab: AttachedCab? = null
 
     override fun openCab(menuRes: Int, callback: ICabCallback): AttachedCab {
         cab?.let {
-            println("Cab")
             if (it.isActive()) {
                 it.destroy()
             }
@@ -197,5 +182,4 @@ class PlaylistDetailsFragment : AbsMainActivityFragment(R.layout.fragment_playli
         }
         return cab as AttachedCab
     }
-
 }

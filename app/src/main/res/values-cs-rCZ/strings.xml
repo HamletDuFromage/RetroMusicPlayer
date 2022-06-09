@@ -9,6 +9,7 @@
     <string name="action_add_to_favorites">Přidat k oblíbeným</string>
     <string name="action_add_to_playing_queue">Přidat do fronty </string>
     <string name="action_add_to_playlist">Přidat do seznamu skladeb…</string>
+    <string name="action_cancel">Zrušit aktuální časovač</string>
     <string name="action_cast">Hliník</string>
     <string name="action_clear_playing_queue">Vyčistit frontu</string>
     <string name="action_cycle_repeat">Cycle repeat mode</string>
@@ -54,6 +55,7 @@
     <string name="add_action">Přidat</string>
     <string name="add_playlist_title">"Přidat do seznamu skladeb"</string>
     <string name="add_time_framed_lryics">Add Time Framed Lyrics</string>
+    <string name="added_song_count_to_playlist">Added %1$d song(s) to %2$s</string>
     <string name="added_title_to_playing_queue">"Přidán 1 titul do fronty přehrávání."</string>
     <string name="added_x_titles_to_playing_queue">Přidány %1$d tituly do fronty přehrávání.</string>
     <string name="album">Album</string>
@@ -77,7 +79,6 @@
     <string name="app_shortcut_top_tracks_short">Nejlepší skladby</string>
     <string name="app_widget_big_name">Full Image</string>
     <string name="app_widget_card_name">Karta</string>
-    <string name="app_widget_circle_name">@string/circle</string>
     <string name="app_widget_classic_name">Klasický</string>
     <string name="app_widget_md3_name">MD3</string>
     <string name="app_widget_small_name">Malý</string>
@@ -94,6 +95,7 @@
     <string name="biography">Bio</string>
     <string name="black_theme_name">Velmi černá</string>
     <string name="blacklist">Černá listina</string>
+    <string name="bluetooth_summary">The app needs nearby devices permission to check for bluetooth devices</string>
     <string name="blur">Rozostření</string>
     <string name="blur_card">Blur Card</string>
     <string name="bug_report_failed">Hlášení se nepodařilo odeslat</string>
@@ -107,6 +109,7 @@
     <string name="bug_report_no_password">Prosím zadejte platné GitHub heslo</string>
     <string name="bug_report_no_title">Prosím zadejte název problému</string>
     <string name="bug_report_no_username">Prosím zadejte platné uživatelské jméno na GitHubu</string>
+    <string name="bug_report_success">Bug report successful</string>
     <string name="bug_report_summary">Došlo k neočekávané chybě. Je nám líto, že jste našli tuto chybu, pokud aplikace bude stále padat, použijte funkci \"Vymazat data aplikace\" nebo nám pošlete e-mail </string>
     <string name="bug_report_use_account">Odeslat pomocí účtu GitHub</string>
     <string name="buy_now">Zakoupit</string>
@@ -119,15 +122,18 @@
     <string name="cascading">Cascading</string>
     <string name="changelog">Přehled změn</string>
     <string name="changelog_summary">Check out What\'s New</string>
+    <string name="choose_image">Choose Image</string>
     <string name="choose_restore_title">Choose what to restore</string>
     <string name="circle">Kruh</string>
     <string name="circular">Kruhový</string>
     <string name="classic">Klasický</string>
     <string name="clear_action">Vyčistit</string>
     <string name="clear_blacklist">Vyčistit černou listinu</string>
+    <string name="clear_history">Clear History</string>
     <string name="clear_playing_queue">Vymazat frontu</string>
     <string name="color">Barva</string>
     <string name="colors">Barvy</string>
+    <string name="compact">Compact</string>
     <string name="composer">Skladatel</string>
     <string name="copied_device_info_to_clipboard">Informace o zařízení zkopírovány do schránky.</string>
     <string name="could_not_create_playlist">Nelze vytvo\u0159it playlist.</string>
@@ -140,6 +146,7 @@
     <string name="credit_title">Členové a přispěvatelé </string>
     <string name="currently_listening_to_x_by_x">Aktuálně posloucháš %1$s od %2$s.</string>
     <string name="custom_artist_images">Custom Artist Images</string>
+    <string name="customactivityoncrash_error_activity_error_details_share">Share Crash Report</string>
     <string name="dark_theme_name">Tmavá</string>
     <string name="delete_playlist_title">Smazat seznam skladeb</string>
     <string name="delete_playlist_x"><![CDATA[Smazat seznam skladeb <b>%1$s</b>?]]></string>
@@ -169,8 +176,15 @@
     <string name="edit_synced_lyrics">Edit Synced Lyrics</string>
     <string name="empty">Prázdný</string>
     <string name="equalizer">Ekvalizér</string>
+    <string name="error_create_backup">Couldn\u2019t create backup</string>
+    <string name="error_delete_backup">Couldn\u2019t delete backup</string>
+    <string name="error_empty_name">Your name can\'t be empty!</string>
+    <string name="error_load_failed">Load failed</string>
+    <string name="error_share_file">Couldn\'t share file</string>
+    <string name="expanded">Expanded</string>
     <string name="faq">Často kladené otázky</string>
     <string name="favorites">Oblíbené</string>
+    <string name="file_already_exists">File already exists</string>
     <string name="finish_last_song">Dokončit poslední skladbu</string>
     <string name="fit">Fit</string>
     <string name="flat">Flat</string>
@@ -186,6 +200,7 @@
     <string name="genres">Žánry</string>
     <string name="git_hub_summary">Forkněte projekt na GitHubu</string>
     <string name="gradient">Gradient</string>
+    <string name="grant_access">Grant access</string>
     <string name="grid_size_1">1</string>
     <string name="grid_size_2">2</string>
     <string name="grid_size_3">3</string>
@@ -198,6 +213,8 @@
     <string name="help_summary">Potřebujete další pomoc?</string>
     <string name="hinge">Hinge</string>
     <string name="history">Historie</string>
+    <string name="history_cleared">History cleared</string>
+    <string name="history_undo_button">Undo</string>
     <string name="home">Domov</string>
     <string name="horizontal_flip">Horizontální otočení</string>
     <string name="image">Obrázek</string>
@@ -214,13 +231,14 @@
     <string name="label_file_name">Název souboru</string>
     <string name="label_file_path">Umístění souboru</string>
     <string name="label_file_size">Velikost</string>
-    <string name="label_last_modified">Naposledy změněno</string>
+    <string name="label_last_modified">Last Modified</string>
     <string name="label_more_from">Více od %s</string>
     <string name="label_sampling_rate">Vzorkovací frekvence</string>
     <string name="label_track_length">Délka</string>
     <string name="labeled">Labeled</string>
     <string name="last_added">Poslední </string>
     <string name="last_song">Poslední skladba</string>
+    <string name="lets_go">Let\'s go</string>
     <string name="library_categories">Library categories</string>
     <string name="licenses">Licence</string>
     <string name="light_theme_name">Velmi bílá</string>
@@ -233,6 +251,12 @@
     <string name="material">Material</string>
     <string name="md_error_label">Chyba</string>
     <string name="md_storage_perm_error">Chyba oprávnění</string>
+    <string name="message_backup_create_success">Backup created successfully.</string>
+    <string name="message_limit_tabs">Not more than 5 items</string>
+    <string name="message_pro_feature">%s is a Pro feature.</string>
+    <string name="message_restore_success">Restore completed successfully.</string>
+    <string name="message_updated">Updated</string>
+    <string name="message_welcome"><![CDATA[Hello there! <br>Welcome to %s]]></string>
     <string name="my_name">Název</string>
     <string name="my_top_tracks">Moje top skladby</string>
     <string name="never">Nikdy</string>
@@ -273,6 +297,7 @@
     <string name="paste_lyrics_here">Paste Lyrics Here</string>
     <string name="paste_timeframe_lyrics_here">Paste timeframe lyrics here</string>
     <string name="peek">Peek</string>
+    <string name="permission_bluetooth_denied">Nearby devices permission denied.</string>
     <string name="permission_external_storage_denied">Povolení přístupu k externímu úložišti bylo zamítnuto.</string>
     <string name="permission_summary">Aplikace potřebuje přístup k úložišti vašeho zařízení, aby mohla přehráváat hudbu</string>
     <string name="permission_title">Přístup k úložišti</string>
@@ -283,11 +308,13 @@
     <string name="pinterest_page">Pinterest</string>
     <string name="pinterest_page_summary">Sledujte stránku Pinterest pro inspiraci designu Retro Music</string>
     <string name="plain">Klasické</string>
+    <string name="playList_already_exits">Playlist already exists</string>
     <string name="playback_pitch">Pitch</string>
     <string name="playback_settings">Playback Settings</string>
     <string name="playback_speed">Playback Speed</string>
     <string name="playing_notification_description">Oznámení o přehrávání poskytuje akce pro přehrávání/pauzu atd.</string>
     <string name="playing_notification_name">Oznámení o přehrávání</string>
+    <string name="playlist_created_sucessfully">%s created successfully</string>
     <string name="playlist_is_empty">Seznam skladeb je prázdný</string>
     <string name="playlist_name_empty">Název playlistu</string>
     <string name="playlists">Seznamy skladeb</string>
@@ -333,10 +360,14 @@
     <string name="pref_summary_ignore_media_store_artwork">Může zvýšit kvalitu obalu alba, ale způsobí pomalejší načítání snímků. Tuto možnost povolte pouze v případě potíží s uměleckými díly s nízkým rozlišením.</string>
     <string name="pref_summary_library_categories">Configure visibility and order of library categories.</string>
     <string name="pref_summary_lock_screen">Use Retro Music\'s custom lockscreen controls</string>
+    <string name="pref_summary_manage_audio_focus">Always play audio in background regardless of anything else being played</string>
     <string name="pref_summary_open_source_licences">License details for open source software</string>
+    <string name="pref_summary_pause_history">When enabled, newly played songs won\'t show in history</string>
     <string name="pref_summary_remember_tab">Navigate to the last used tab on start</string>
     <string name="pref_summary_show_lyrics">Display synced lyrics over album cover</string>
     <string name="pref_summary_suggestions">Show New Music Mix on homescreen</string>
+    <string name="pref_summary_swipe_anywhere_now_playing">Enables changing song by swiping anywhere on the now playing screen</string>
+    <string name="pref_summary_swipe_to_dismiss">Swipe down to dismiss mini player</string>
     <string name="pref_summary_toggle_full_screen">Immersive mode</string>
     <string name="pref_summary_toggle_headset">Začít přehrávat ihned po připojení sluchátek</string>
     <string name="pref_summary_toggle_shuffle">Shuffle mode will turn off when playing a new list of songs</string>
@@ -348,7 +379,7 @@
     <string name="pref_title_album_cover_style">Motiv obalu alba</string>
     <string name="pref_title_album_cover_transform">Album cover skip</string>
     <string name="pref_title_app_shortcuts">Barevné zkratky aplikace</string>
-    <string name="pref_title_appbar_mode">App bar mode</string>
+    <string name="pref_title_appbar_mode">Header style</string>
     <string name="pref_title_audio_ducking">Snížit hlasitost při ztrátě zaostření</string>
     <string name="pref_title_audio_fade">Fade audio</string>
     <string name="pref_title_auto_download_artist_images">Automatické stahování obrázků interpretů</string>
@@ -375,11 +406,15 @@
     <string name="pref_title_lock_screen">Ovládání na celou obrazovku</string>
     <string name="pref_title_lyrics_screen_on">Keep screen on when showing lyrics</string>
     <string name="pref_title_lyrics_type">Lyrics type</string>
+    <string name="pref_title_manage_audio_focus">Always play</string>
     <string name="pref_title_now_playing_screen_appearance">Vzhled</string>
     <string name="pref_title_open_source_licences">Licence Open source</string>
+    <string name="pref_title_pause_history">Pause history</string>
     <string name="pref_title_remember_tab">Remember last tab</string>
     <string name="pref_title_show_lyrics">Show lyrics</string>
     <string name="pref_title_suggestions">Show suggestions</string>
+    <string name="pref_title_swipe_anywhere_now_playing">Swipe anywhere to change song</string>
+    <string name="pref_title_swipe_to_dismiss">Dismiss with swipe down</string>
     <string name="pref_title_tab_text_mode">Tab titles mode</string>
     <string name="pref_title_toggle_carousel_effect">Carousel effect</string>
     <string name="pref_title_toggle_full_screen">Aplikace přes celou obrazovku</string>
@@ -389,7 +424,7 @@
     <string name="pref_title_wallpaper_accent">Wallpaper accent color</string>
     <string name="pref_title_whitelist">Whitelist music</string>
     <string name="pro">Pro</string>
-    <string name="pro_summary">Černý motiv, motivy stránky přehrávání, kolotočový efekt a další..</string>
+    <string name="pro_summary">Black theme, Now playing themes, Carousel effect and more..</string>
     <string name="profile">Profil</string>
     <string name="purchase">Koupit</string>
     <string name="queue">Fronta</string>
@@ -400,6 +435,7 @@
     <string name="remove_action">Odstranit</string>
     <string name="remove_cover">Odstranit obal</string>
     <string name="remove_from_blacklist">Odstranit z černé listiny</string>
+    <string name="remove_image">Remove Image</string>
     <string name="remove_song_from_playlist_title">Smazat skladbu ze seznamu skladeb</string>
     <string name="remove_song_x_from_playlist"><![CDATA[Odstranit skladbu <b>%1$s</b> ze seznamu skladeb?]]></string>
     <string name="remove_songs_from_playlist_title">Smazat skladby ze seznamu skladeb</string>
@@ -461,11 +497,11 @@
     <string name="sort_order">Řazení </string>
     <string name="sort_order_a_z">Vzestupně</string>
     <string name="sort_order_album">Album</string>
-    <string name="sort_order_album_artist">@string/album_artist</string>
     <string name="sort_order_artist">Umělec</string>
     <string name="sort_order_composer">Skladatel</string>
     <string name="sort_order_date">Datum přidání</string>
     <string name="sort_order_date_modified">Datum změny</string>
+    <string name="sort_order_default">Default</string>
     <string name="sort_order_num_songs">Počet skladeb</string>
     <string name="sort_order_num_songs_desc">Počet skladeb sestupně</string>
     <string name="sort_order_year">Rok</string>
@@ -525,4 +561,5 @@
     <string name="you_have_to_select_at_least_one_category">Musíte zvolit alespoň jednu kategorii.</string>
     <string name="you_will_be_forwarded_to_the_issue_tracker_website">Budete přesměrováni na webovou stránku pro zadání problému.</string>
     <string name="your_account_data_is_only_used_for_authentication">Vaše údaje k účtu jsou použity pouze k ověření.</string>
+    <string name="bluetooth_title">Nearby devices</string>
 </resources>

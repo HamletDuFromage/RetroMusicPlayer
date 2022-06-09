@@ -2,10 +2,11 @@ package code.name.monkey.retromusic.auto
 
 import android.content.Context
 import android.net.Uri
-import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaDescriptionCompat
-import code.name.monkey.retromusic.util.ImageUtil
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.toBitmap
+import androidx.core.os.bundleOf
 
 
 internal object AutoMediaItem {
@@ -13,7 +14,7 @@ internal object AutoMediaItem {
         return Builder(context)
     }
 
-    internal class Builder(val mContext: Context) {
+    internal class Builder(private val mContext: Context) {
         private var mBuilder: MediaDescriptionCompat.Builder?
         private var mFlags = 0
         fun path(fullPath: String): Builder {
@@ -42,28 +43,25 @@ internal object AutoMediaItem {
 
         fun icon(iconDrawableId: Int): Builder {
             mBuilder?.setIconBitmap(
-                ImageUtil.createBitmap(
-                    ImageUtil.getVectorDrawable(
+                    ResourcesCompat.getDrawable(
                         mContext.resources,
                         iconDrawableId,
                         mContext.theme
-                    )
-                )
+                    )?.toBitmap()
             )
             return this
         }
 
         fun gridLayout(isGrid: Boolean): Builder {
 
-            val hints = Bundle()
-            hints.putBoolean(CONTENT_STYLE_SUPPORTED, true)
-            hints.putInt(
-                CONTENT_STYLE_BROWSABLE_HINT,
-                if (isGrid) CONTENT_STYLE_GRID_ITEM_HINT_VALUE else CONTENT_STYLE_LIST_ITEM_HINT_VALUE
-            )
-            hints.putInt(
-                CONTENT_STYLE_PLAYABLE_HINT,
-                if (isGrid) CONTENT_STYLE_GRID_ITEM_HINT_VALUE else CONTENT_STYLE_LIST_ITEM_HINT_VALUE
+            val hints = bundleOf(
+                CONTENT_STYLE_SUPPORTED to true,
+                CONTENT_STYLE_BROWSABLE_HINT to
+                        if (isGrid) CONTENT_STYLE_GRID_ITEM_HINT_VALUE
+                        else CONTENT_STYLE_LIST_ITEM_HINT_VALUE,
+                CONTENT_STYLE_PLAYABLE_HINT to
+                        if (isGrid) CONTENT_STYLE_GRID_ITEM_HINT_VALUE
+                        else CONTENT_STYLE_LIST_ITEM_HINT_VALUE
             )
             mBuilder?.setExtras(hints)
             return this

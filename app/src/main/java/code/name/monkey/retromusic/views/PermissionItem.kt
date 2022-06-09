@@ -5,6 +5,7 @@ import android.content.res.ColorStateList
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.FrameLayout
+import androidx.core.content.withStyledAttributes
 import code.name.monkey.appthemehelper.ThemeStore
 import code.name.monkey.appthemehelper.util.ColorUtil
 import code.name.monkey.retromusic.R
@@ -21,29 +22,32 @@ class PermissionItem @JvmOverloads constructor(
     val checkImage get() = binding.checkImage
 
     init {
-        val attributes = context.obtainStyledAttributes(attrs, R.styleable.PermissionItem, 0, 0)
         binding = ItemPermissionBinding.inflate(LayoutInflater.from(context), this, true)
 
-        binding.title.text = attributes.getText(R.styleable.PermissionItem_permissionTitle)
-        binding.summary.text =
-            attributes.getText(R.styleable.PermissionItem_permissionTitleSubTitle)
-        binding.number.text = attributes.getText(R.styleable.PermissionItem_permissionTitleNumber)
-        binding.button.text = attributes.getText(R.styleable.PermissionItem_permissionButtonTitle)
-        binding.button.setIconResource(
-            attributes.getResourceId(
-                R.styleable.PermissionItem_permissionIcon,
-                R.drawable.ic_album
+        context.withStyledAttributes(attrs, R.styleable.PermissionItem, 0, 0) {
+            binding.title.text = getText(R.styleable.PermissionItem_permissionTitle)
+            binding.summary.text = getText(R.styleable.PermissionItem_permissionTitleSubTitle)
+            binding.number.text = getText(R.styleable.PermissionItem_permissionTitleNumber)
+            binding.button.text = getText(R.styleable.PermissionItem_permissionButtonTitle)
+            binding.button.setIconResource(
+                getResourceId(
+                    R.styleable.PermissionItem_permissionIcon,
+                    R.drawable.ic_album
+                )
             )
-        )
-        val color = ThemeStore.accentColor(context)
-        binding.number.backgroundTintList =
-            ColorStateList.valueOf(ColorUtil.withAlpha(color, 0.22f))
+            val color = ThemeStore.accentColor(context)
+            binding.number.backgroundTintList =
+                ColorStateList.valueOf(ColorUtil.withAlpha(color, 0.22f))
 
-        binding.button.accentOutlineColor()
-        attributes.recycle()
+            if (!isInEditMode) binding.button.accentOutlineColor()
+        }
     }
 
     fun setButtonClick(callBack: () -> Unit) {
-        binding.button.setOnClickListener { callBack.invoke() }
+        binding.button.setOnClickListener { callBack() }
+    }
+
+    fun setNumber(number: String) {
+        binding.number.text = number
     }
 }

@@ -21,6 +21,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.findNavController
@@ -28,8 +29,6 @@ import code.name.monkey.retromusic.EXTRA_ALBUM_ID
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.adapter.base.AbsMultiSelectAdapter
 import code.name.monkey.retromusic.adapter.base.MediaEntryViewHolder
-import code.name.monkey.retromusic.extensions.hide
-import code.name.monkey.retromusic.extensions.show
 import code.name.monkey.retromusic.glide.GlideApp
 import code.name.monkey.retromusic.glide.RetroGlideExtension
 import code.name.monkey.retromusic.glide.RetroMusicColoredTarget
@@ -96,16 +95,12 @@ open class SongAdapter(
         val song = dataSet[position]
         val isChecked = isChecked(song)
         holder.itemView.isActivated = isChecked
-        if (isChecked) {
-            holder.menu?.hide()
-        } else {
-            holder.menu?.show()
-        }
+        holder.menu?.isGone = isChecked
         holder.title?.text = getSongTitle(song)
         holder.text?.text = getSongText(song)
         holder.text2?.text = getSongText(song)
         loadAlbumCover(song, holder)
-        val landscape = RetroUtil.isLandscape()
+        val landscape = RetroUtil.isLandscape
         if ((PreferenceUtil.songGridSize > 2 && !landscape) || (PreferenceUtil.songGridSizeLand > 5 && landscape)) {
             holder.menu?.isVisible = false
         }
@@ -154,8 +149,8 @@ open class SongAdapter(
         return dataSet[position]
     }
 
-    override fun getName(song: Song): String {
-        return song.title
+    override fun getName(model: Song): String {
+        return model.title
     }
 
     override fun onMultipleItemAction(menuItem: MenuItem, selection: List<Song>) {
@@ -164,6 +159,7 @@ open class SongAdapter(
 
     override fun getPopupText(position: Int): String {
         val sectionName: String? = when (PreferenceUtil.songSortOrder) {
+            SortOrder.SongSortOrder.SONG_DEFAULT -> return MusicUtil.getSectionName(dataSet[position].title, true)
             SortOrder.SongSortOrder.SONG_A_Z, SortOrder.SongSortOrder.SONG_Z_A -> dataSet[position].title
             SortOrder.SongSortOrder.SONG_ALBUM -> dataSet[position].albumName
             SortOrder.SongSortOrder.SONG_ARTIST -> dataSet[position].artistName

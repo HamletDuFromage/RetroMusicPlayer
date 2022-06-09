@@ -24,7 +24,6 @@ import android.os.Looper
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
-import android.text.TextUtils
 import android.text.format.DateUtils
 import android.util.AttributeSet
 import android.view.GestureDetector
@@ -34,6 +33,7 @@ import android.view.View
 import android.view.animation.LinearInterpolator
 import android.widget.Scroller
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.withSave
 import code.name.monkey.retromusic.R
 import java.io.File
 import kotlin.math.abs
@@ -42,10 +42,11 @@ import kotlin.math.abs
  * 歌词 Created by wcy on 2015/11/9.
  */
 @SuppressLint("StaticFieldLeak")
+@Suppress("deprecation")
 class CoverLrcView @JvmOverloads constructor(
     context: Context?,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
+    defStyleAttr: Int = 0,
 ) : View(context, attrs, defStyleAttr) {
     private val mLrcEntryList: MutableList<LrcEntry> = ArrayList()
     private val mLrcPaint = TextPaint()
@@ -108,7 +109,7 @@ class CoverLrcView @JvmOverloads constructor(
                 e1: MotionEvent,
                 e2: MotionEvent,
                 distanceX: Float,
-                distanceY: Float
+                distanceY: Float,
             ): Boolean {
                 if (mOffset == getOffset(0) && distanceY < 0F) {
                     return super.onScroll(e1, e2, distanceX, distanceY)
@@ -128,7 +129,7 @@ class CoverLrcView @JvmOverloads constructor(
                 e1: MotionEvent,
                 e2: MotionEvent,
                 velocityX: Float,
-                velocityY: Float
+                velocityY: Float,
             ): Boolean {
                 if (hasLrc()) {
                     mScroller!!.fling(
@@ -208,7 +209,7 @@ class CoverLrcView @JvmOverloads constructor(
         )
         mDefaultLabel = ta.getString(R.styleable.LrcView_lrcLabel)
         mDefaultLabel =
-            if (TextUtils.isEmpty(mDefaultLabel)) context.getString(R.string.empty) else mDefaultLabel
+            if (mDefaultLabel.isNullOrEmpty()) context.getString(R.string.empty) else mDefaultLabel
         mLrcPadding = ta.getDimension(R.styleable.LrcView_lrcPadding, 0f)
         mTimelineColor = ta.getColor(
             R.styleable.LrcView_lrcTimelineColor,
@@ -254,16 +255,6 @@ class CoverLrcView @JvmOverloads constructor(
     fun setNormalColor(normalColor: Int) {
         mNormalTextColor = normalColor
         postInvalidate()
-    }
-
-    /** 普通歌词文本字体大小  */
-    fun setNormalTextSize(size: Float) {
-        mNormalTextSize = size
-    }
-
-    /** 当前歌词文本字体大小  */
-    fun setCurrentTextSize(size: Float) {
-        mCurrentTextSize = size
     }
 
     /** 设置当前行歌词的字体颜色  */
@@ -404,28 +395,6 @@ class CoverLrcView @JvmOverloads constructor(
     }
 
     /**
-     * 加载在线歌词，默认使用 utf-8 编码
-     *
-     * @param lrcUrl 歌词文件的网络地址
-     */
-    @JvmOverloads
-    fun loadLrcByUrl(lrcUrl: String, charset: String? = "utf-8") {
-        val flag = "url://$lrcUrl"
-        this.flag = flag
-        object : AsyncTask<String?, Int?, String>() {
-            override fun doInBackground(vararg params: String?): String? {
-                return LrcUtils.getContentFromNetwork(params[0], params[1])
-            }
-
-            override fun onPostExecute(lrcText: String) {
-                if (flag == flag) {
-                    loadLrc(lrcText)
-                }
-            }
-        }.execute(lrcUrl, charset)
-    }
-
-    /**
      * 歌词是否有效
      *
      * @return true，如果歌词有效，否则false
@@ -522,10 +491,10 @@ class CoverLrcView @JvmOverloads constructor(
      * @param y 歌词中心 Y 坐标
      */
     private fun drawText(canvas: Canvas, staticLayout: StaticLayout, y: Float) {
-        canvas.save()
-        canvas.translate(mLrcPadding, y - (staticLayout.height shr 1))
-        staticLayout.draw(canvas)
-        canvas.restore()
+        canvas.withSave {
+            translate(mLrcPadding, y - (staticLayout.height shr 1))
+            staticLayout.draw(this)
+        }
     }
 
     fun animateCurrentTextSize() {
@@ -629,7 +598,6 @@ class CoverLrcView @JvmOverloads constructor(
                 mOffset = animation.animatedValue as Float
                 invalidate()
             }
-            LrcUtils.resetDurationScale()
             start()
         }
     }
@@ -709,10 +677,6 @@ class CoverLrcView @JvmOverloads constructor(
          * @return 是否成功消费该事件，如果成功消费，则会更新UI
          */
         fun onPlayClick(time: Long): Boolean
-    }
-
-    fun interface OnFlingXListener {
-        fun onFlingX(velocityX: Float): Boolean
     }
 
     companion object {

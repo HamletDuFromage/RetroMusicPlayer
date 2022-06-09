@@ -6,8 +6,8 @@ import android.graphics.Bitmap
 import android.media.MediaScannerConnection
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
+import code.name.monkey.retromusic.extensions.showToast
 import code.name.monkey.retromusic.misc.UpdateToastMediaScannerCompletionListener
 import code.name.monkey.retromusic.model.AudioTagInfo
 import code.name.monkey.retromusic.util.MusicUtil.createAlbumArtFile
@@ -24,7 +24,6 @@ import org.jaudiotagger.tag.TagException
 import org.jaudiotagger.tag.images.AndroidArtwork
 import org.jaudiotagger.tag.images.Artwork
 import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
 
 class TagWriter {
@@ -34,7 +33,7 @@ class TagWriter {
         suspend fun scan(context: Context, toBeScanned: List<String?>?) {
             if (toBeScanned == null || toBeScanned.isEmpty()) {
                 Log.i("scan", "scan: Empty")
-                Toast.makeText(context, "Scan file from folder", Toast.LENGTH_SHORT).show()
+                context.showToast( "Scan file from folder")
                 return
             }
             MediaScannerConnection.scanFile(
@@ -51,7 +50,7 @@ class TagWriter {
 
         suspend fun writeTagsToFiles(context: Context, info: AudioTagInfo) {
             withContext(Dispatchers.IO) {
-                kotlin.runCatching {
+                runCatching {
                     var artwork: Artwork? = null
                     var albumArtFile: File? = null
                     if (info.artworkInfo?.artwork != null) {
@@ -60,7 +59,7 @@ class TagWriter {
                             info.artworkInfo.artwork.compress(
                                 Bitmap.CompressFormat.JPEG,
                                 100,
-                                FileOutputStream(albumArtFile)
+                                albumArtFile.outputStream()
                             )
                             artwork = AndroidArtwork.createArtworkFromFile(albumArtFile)
                         } catch (e: IOException) {
@@ -124,7 +123,7 @@ class TagWriter {
         suspend fun writeTagsToFilesR(context: Context, info: AudioTagInfo): List<File> =
             withContext(Dispatchers.IO) {
                 val cacheFiles = mutableListOf<File>()
-                kotlin.runCatching {
+                runCatching {
                     var artwork: Artwork? = null
                     var albumArtFile: File? = null
                     if (info.artworkInfo?.artwork != null) {
@@ -133,7 +132,7 @@ class TagWriter {
                             info.artworkInfo.artwork.compress(
                                 Bitmap.CompressFormat.JPEG,
                                 100,
-                                FileOutputStream(albumArtFile)
+                                albumArtFile.outputStream()
                             )
                             artwork = AndroidArtwork.createArtworkFromFile(albumArtFile)
                         } catch (e: IOException) {

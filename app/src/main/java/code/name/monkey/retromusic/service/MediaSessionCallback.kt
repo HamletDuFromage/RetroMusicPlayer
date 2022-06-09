@@ -14,8 +14,6 @@
 
 package code.name.monkey.retromusic.service
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.provider.MediaStore
 import android.support.v4.media.session.MediaSessionCompat
@@ -32,6 +30,8 @@ import code.name.monkey.retromusic.service.MusicService.Companion.CYCLE_REPEAT
 import code.name.monkey.retromusic.service.MusicService.Companion.TOGGLE_FAVORITE
 import code.name.monkey.retromusic.service.MusicService.Companion.TOGGLE_SHUFFLE
 import code.name.monkey.retromusic.util.MusicUtil
+import code.name.monkey.retromusic.util.logD
+import code.name.monkey.retromusic.util.logE
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -40,8 +40,7 @@ import org.koin.core.component.inject
  */
 
 class MediaSessionCallback(
-    private val context: Context,
-    private val musicService: MusicService
+    private val musicService: MusicService,
 ) : MediaSessionCompat.Callback(), KoinComponent {
 
     private val songRepository by inject<SongRepository>()
@@ -54,7 +53,7 @@ class MediaSessionCallback(
     override fun onPlayFromMediaId(mediaId: String?, extras: Bundle?) {
         super.onPlayFromMediaId(mediaId, extras)
         val musicId = AutoMediaIDHelper.extractMusicID(mediaId!!)
-        println(musicId)
+        logD("Music Id $musicId")
         val itemId = musicId?.toLong() ?: -1
         val songs: ArrayList<Song> = ArrayList()
         when (val category = AutoMediaIDHelper.extractCategory(mediaId)) {
@@ -91,7 +90,8 @@ class MediaSessionCallback(
             AutoMediaIDHelper.MEDIA_ID_MUSICS_BY_HISTORY,
             AutoMediaIDHelper.MEDIA_ID_MUSICS_BY_SUGGESTIONS,
             AutoMediaIDHelper.MEDIA_ID_MUSICS_BY_TOP_TRACKS,
-            AutoMediaIDHelper.MEDIA_ID_MUSICS_BY_QUEUE -> {
+            AutoMediaIDHelper.MEDIA_ID_MUSICS_BY_QUEUE,
+            -> {
                 val tracks: List<Song> = when (category) {
                     AutoMediaIDHelper.MEDIA_ID_MUSICS_BY_HISTORY -> topPlayedRepository.recentlyPlayedTracks()
                     AutoMediaIDHelper.MEDIA_ID_MUSICS_BY_SUGGESTIONS -> topPlayedRepository.recentlyPlayedTracks()
@@ -104,8 +104,6 @@ class MediaSessionCallback(
                     songIndex = 0
                 }
                 musicService.openQueue(songs, songIndex, true)
-            }
-            else -> {
             }
         }
         musicService.play()
@@ -149,9 +147,15 @@ class MediaSessionCallback(
         musicService.play()
     }
 
+    override fun onPrepare() {
+        super.onPrepare()
+        if (musicService.currentSong != Song.emptySong)
+            musicService.restoreState(::onPlay)
+    }
+
     override fun onPlay() {
         super.onPlay()
-        musicService.play()
+        if (musicService.currentSong != Song.emptySong) musicService.play()
     }
 
     override fun onPause() {
@@ -166,7 +170,7 @@ class MediaSessionCallback(
 
     override fun onSkipToPrevious() {
         super.onSkipToPrevious()
-        musicService.back(true)
+        musicService.playPreviousSong(true)
     }
 
     override fun onStop() {
@@ -177,10 +181,6 @@ class MediaSessionCallback(
     override fun onSeekTo(pos: Long) {
         super.onSeekTo(pos)
         musicService.seek(pos.toInt())
-    }
-
-    override fun onMediaButtonEvent(mediaButtonIntent: Intent): Boolean {
-        return MediaButtonIntentReceiver.handleIntent(context, mediaButtonIntent)
     }
 
     override fun onCustomAction(action: String, extras: Bundle?) {
@@ -195,11 +195,10 @@ class MediaSessionCallback(
                 musicService.updateMediaSessionPlaybackState()
             }
             TOGGLE_FAVORITE -> {
-                MusicUtil.toggleFavorite(context, MusicPlayerRemote.currentSong)
-                musicService.updateMediaSessionPlaybackState()
+                musicService.toggleFavorite()
             }
             else -> {
-                println("Unsupported action: $action")
+                logE("Unsupported action: $action")
             }
         }
     }

@@ -22,19 +22,15 @@ import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.transition.Slide
 import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.core.widget.doAfterTextChanged
 import code.name.monkey.appthemehelper.util.MaterialValueHelper
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.databinding.ActivityAlbumTagEditorBinding
-import code.name.monkey.retromusic.extensions.appHandleColor
-import code.name.monkey.retromusic.extensions.defaultFooterColor
-import code.name.monkey.retromusic.extensions.isColorLight
-import code.name.monkey.retromusic.extensions.setTint
+import code.name.monkey.retromusic.extensions.*
 import code.name.monkey.retromusic.glide.GlideApp
 import code.name.monkey.retromusic.glide.palette.BitmapPaletteWrapper
 import code.name.monkey.retromusic.model.ArtworkInfo
@@ -43,6 +39,7 @@ import code.name.monkey.retromusic.util.ImageUtil
 import code.name.monkey.retromusic.util.MusicUtil
 import code.name.monkey.retromusic.util.RetroColorUtil.generatePalette
 import code.name.monkey.retromusic.util.RetroColorUtil.getColor
+import code.name.monkey.retromusic.util.logD
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.target.ImageViewTarget
 import com.bumptech.glide.request.transition.Transition
@@ -50,7 +47,7 @@ import com.google.android.material.shape.MaterialShapeDrawable
 import org.jaudiotagger.tag.FieldKey
 import java.util.*
 
-class AlbumTagEditorActivity : AbsTagEditorActivity<ActivityAlbumTagEditorBinding>(), TextWatcher {
+class AlbumTagEditorActivity : AbsTagEditorActivity<ActivityAlbumTagEditorBinding>() {
 
     override val bindingInflater: (LayoutInflater) -> ActivityAlbumTagEditorBinding =
         ActivityAlbumTagEditorBinding::inflate
@@ -91,10 +88,10 @@ class AlbumTagEditorActivity : AbsTagEditorActivity<ActivityAlbumTagEditorBindin
         binding.albumTitleContainer.setTint(false)
         binding.albumArtistContainer.setTint(false)
 
-        binding.albumText.appHandleColor().addTextChangedListener(this)
-        binding.albumArtistText.appHandleColor().addTextChangedListener(this)
-        binding.genreTitle.appHandleColor().addTextChangedListener(this)
-        binding.yearTitle.appHandleColor().addTextChangedListener(this)
+        binding.albumText.appHandleColor().doAfterTextChanged { dataChanged() }
+        binding.albumArtistText.appHandleColor().doAfterTextChanged { dataChanged() }
+        binding.genreTitle.appHandleColor().doAfterTextChanged { dataChanged() }
+        binding.yearTitle.appHandleColor().doAfterTextChanged { dataChanged() }
     }
 
     private fun fillViewsWithFileTags() {
@@ -102,7 +99,7 @@ class AlbumTagEditorActivity : AbsTagEditorActivity<ActivityAlbumTagEditorBindin
         binding.albumArtistText.setText(albumArtistName)
         binding.genreTitle.setText(genreName)
         binding.yearTitle.setText(songYear)
-        println(albumTitle + albumArtistName)
+        logD(albumTitle + albumArtistName)
     }
 
     override fun loadCurrentImage() {
@@ -118,11 +115,7 @@ class AlbumTagEditorActivity : AbsTagEditorActivity<ActivityAlbumTagEditorBindin
     }
 
     private fun toastLoadingFailed() {
-        Toast.makeText(
-            this@AlbumTagEditorActivity,
-            R.string.could_not_download_album_cover,
-            Toast.LENGTH_SHORT
-        ).show()
+        showToast(R.string.could_not_download_album_cover)
     }
 
     override fun searchImageOnWeb() {
@@ -162,8 +155,7 @@ class AlbumTagEditorActivity : AbsTagEditorActivity<ActivityAlbumTagEditorBindin
 
                 override fun onLoadFailed(errorDrawable: Drawable?) {
                     super.onLoadFailed(errorDrawable)
-                    Toast.makeText(this@AlbumTagEditorActivity, "Load Failed", Toast.LENGTH_LONG)
-                        .show()
+                    showToast(R.string.error_load_failed, Toast.LENGTH_LONG)
                 }
 
                 override fun setResource(resource: BitmapPaletteWrapper?) {}
@@ -196,17 +188,6 @@ class AlbumTagEditorActivity : AbsTagEditorActivity<ActivityAlbumTagEditorBindin
 
     override fun getSongUris(): List<Uri> = repository.albumById(id).songs.map {
         MusicUtil.getSongFileUri(it.id)
-    }
-
-
-    override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
-    }
-
-    override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-    }
-
-    override fun afterTextChanged(s: Editable) {
-        dataChanged()
     }
 
     override fun setColors(color: Int) {

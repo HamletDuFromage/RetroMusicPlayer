@@ -20,15 +20,12 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.res.Resources
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
-import android.text.TextUtils
 import android.widget.RemoteViews
 import androidx.core.content.ContextCompat
 import code.name.monkey.appthemehelper.util.VersionUtils
-import code.name.monkey.retromusic.App
 import code.name.monkey.retromusic.R
 import code.name.monkey.retromusic.model.Song
 import code.name.monkey.retromusic.service.MusicService
@@ -115,18 +112,18 @@ abstract class BaseAppWidget : AppWidgetProvider() {
 
     abstract fun performUpdate(service: MusicService, appWidgetIds: IntArray?)
 
-    protected fun getAlbumArtDrawable(resources: Resources, bitmap: Bitmap?): Drawable {
+    protected fun getAlbumArtDrawable(context: Context, bitmap: Bitmap?): Drawable {
         return if (bitmap == null) {
-            ContextCompat.getDrawable(App.getContext(), R.drawable.default_audio_art)!!
+            ContextCompat.getDrawable(context, R.drawable.default_audio_art)!!
         } else {
-            BitmapDrawable(resources, bitmap)
+            BitmapDrawable(context.resources, bitmap)
         }
     }
 
     protected fun getSongArtistAndAlbum(song: Song): String {
         val builder = StringBuilder()
         builder.append(song.artistName)
-        if (!TextUtils.isEmpty(song.artistName) && !TextUtils.isEmpty(song.albumName)) {
+        if (song.artistName.isNotEmpty() && song.albumName.isNotEmpty()) {
             builder.append(" • ")
         }
         builder.append(song.albumName)
@@ -168,18 +165,6 @@ abstract class BaseAppWidget : AppWidgetProvider() {
             )
 
             return rounded
-        }
-
-        fun createBitmap(drawable: Drawable, sizeMultiplier: Float): Bitmap {
-            val bitmap = Bitmap.createBitmap(
-                (drawable.intrinsicWidth * sizeMultiplier).toInt(),
-                (drawable.intrinsicHeight * sizeMultiplier).toInt(),
-                Bitmap.Config.ARGB_8888
-            )
-            val c = Canvas(bitmap)
-            drawable.setBounds(0, 0, c.width, c.height)
-            drawable.draw(c)
-            return bitmap
         }
 
         protected fun composeRoundedRectPath(
