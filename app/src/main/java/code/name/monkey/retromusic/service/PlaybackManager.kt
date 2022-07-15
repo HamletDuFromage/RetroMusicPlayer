@@ -6,9 +6,6 @@ import android.media.audiofx.AudioEffect
 import code.name.monkey.retromusic.model.Song
 import code.name.monkey.retromusic.service.playback.Playback
 import code.name.monkey.retromusic.util.PreferenceUtil
-import code.name.monkey.retromusic.util.PreferenceUtil.playbackPitch
-import code.name.monkey.retromusic.util.PreferenceUtil.playbackSpeed
-import com.google.android.gms.cast.framework.CastSession
 
 
 class PlaybackManager(val context: Context) {
@@ -36,9 +33,6 @@ class PlaybackManager(val context: Context) {
     val isPlaying: Boolean
         get() = playback != null && playback!!.isPlaying
 
-    private val shouldSetSpeed: Boolean
-        get() = !(playbackSpeed == 1f && playbackPitch == 1f)
-
     init {
         playback = createLocalPlayback()
     }
@@ -47,20 +41,20 @@ class PlaybackManager(val context: Context) {
         playback?.callbacks = callbacks
     }
 
-    fun play(onNotInitialized: () -> Unit = {}, onPlay: () -> Unit = {}) {
+    fun play(onNotInitialized: () -> Unit) {
         if (playback != null && !playback!!.isPlaying) {
             if (!playback!!.isInitialized) {
                 onNotInitialized()
             } else {
                 openAudioEffectSession()
                 if (playbackLocation == PlaybackLocation.LOCAL) {
-                    AudioFader.startFadeAnimator(playback!!, true) {
-                        // Code when Animator Ends
-                        onPlay()
+                    if (playback is CrossFadePlayer) {
+                        if (!(playback as CrossFadePlayer).isCrossFading) {
+                            AudioFader.startFadeAnimator(playback!!, true)
+                        }
+                    } else {
+                        AudioFader.startFadeAnimator(playback!!, true)
                     }
-                }
-                if (shouldSetSpeed) {
-                    playback?.setPlaybackSpeedPitch(playbackSpeed, playbackPitch)
                 }
                 playback?.start()
             }
@@ -86,8 +80,12 @@ class PlaybackManager(val context: Context) {
 
     fun seek(millis: Int): Int = playback!!.seek(millis)
 
-    fun setDataSource(song: Song, force: Boolean): Boolean {
-        return playback?.setDataSource(song, force) == true
+    fun setDataSource(
+        song: Song,
+        force: Boolean,
+        completion: (success: Boolean) -> Unit,
+    ) {
+        playback?.setDataSource(song, force, completion)
     }
 
     fun setNextDataSource(trackUri: String) {
@@ -153,25 +151,22 @@ class PlaybackManager(val context: Context) {
     }
 
     fun switchToRemotePlayback(
-        castSession: CastSession,
+        castPlayer: CastPlayer,
         onChange: (wasPlaying: Boolean, progress: Int) -> Unit,
     ) {
         playbackLocation = PlaybackLocation.REMOTE
-        switchToPlayback(CastPlayer(castSession), onChange)
+        switchToPlayback(castPlayer, onChange)
     }
 
     private fun switchToPlayback(
         playback: Playback,
         onChange: (wasPlaying: Boolean, progress: Int) -> Unit,
     ) {
-        val oldPlayback = playback
-        val wasPlaying: Boolean = oldPlayback.isPlaying
-        val progress: Int = oldPlayback.position()
-
+        val oldPlayback = this.playback
+        val wasPlaying: Boolean = oldPlayback?.isPlaying == true
+        val progress: Int = oldPlayback?.position() ?: 0
         this.playback = playback
-
-        oldPlayback.stop()
-
+        oldPlayback?.stop()
         onChange(wasPlaying, progress)
     }
 

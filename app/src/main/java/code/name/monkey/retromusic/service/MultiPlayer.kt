@@ -23,6 +23,7 @@ import code.name.monkey.retromusic.extensions.uri
 import code.name.monkey.retromusic.model.Song
 import code.name.monkey.retromusic.service.playback.Playback.PlaybackCallbacks
 import code.name.monkey.retromusic.util.PreferenceUtil.isGapLessPlayback
+import code.name.monkey.retromusic.util.logE
 
 /**
  * @author Andrew Neal, Karim Abou Zeid (kabouzeid)
@@ -46,13 +47,19 @@ class MultiPlayer(context: Context) : LocalPlayback(context) {
      * @param song The song object you want to play
      * @return True if the `player` has been prepared and is ready to play, false otherwise
      */
-    override fun setDataSource(song: Song, force: Boolean): Boolean {
+    override fun setDataSource(
+        song: Song,
+        force: Boolean,
+        completion: (success: Boolean) -> Unit,
+    ) {
         isInitialized = false
-        isInitialized = setDataSourceImpl(mCurrentMediaPlayer, song.uri.toString())
-        if (isInitialized) {
-            setNextDataSource(null)
+        setDataSourceImpl(mCurrentMediaPlayer, song.uri.toString()) { success ->
+            isInitialized = success
+            if (isInitialized) {
+                setNextDataSource(null)
+            }
+            completion(isInitialized)
         }
-        return isInitialized
     }
 
     /**
@@ -80,26 +87,28 @@ class MultiPlayer(context: Context) : LocalPlayback(context) {
             mNextMediaPlayer = MediaPlayer()
             mNextMediaPlayer?.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK)
             mNextMediaPlayer?.audioSessionId = audioSessionId
-            if (setDataSourceImpl(mNextMediaPlayer!!, path)) {
-                try {
-                    mCurrentMediaPlayer.setNextMediaPlayer(mNextMediaPlayer)
-                } catch (e: IllegalArgumentException) {
-                    Log.e(TAG, "setNextDataSource: setNextMediaPlayer()", e)
+            setDataSourceImpl(mNextMediaPlayer!!, path) { success ->
+                if (success) {
+                    try {
+                        mCurrentMediaPlayer.setNextMediaPlayer(mNextMediaPlayer)
+                    } catch (e: IllegalArgumentException) {
+                        Log.e(TAG, "setNextDataSource: setNextMediaPlayer()", e)
+                        if (mNextMediaPlayer != null) {
+                            mNextMediaPlayer?.release()
+                            mNextMediaPlayer = null
+                        }
+                    } catch (e: IllegalStateException) {
+                        Log.e(TAG, "setNextDataSource: setNextMediaPlayer()", e)
+                        if (mNextMediaPlayer != null) {
+                            mNextMediaPlayer?.release()
+                            mNextMediaPlayer = null
+                        }
+                    }
+                } else {
                     if (mNextMediaPlayer != null) {
                         mNextMediaPlayer?.release()
                         mNextMediaPlayer = null
                     }
-                } catch (e: IllegalStateException) {
-                    Log.e(TAG, "setNextDataSource: setNextMediaPlayer()", e)
-                    if (mNextMediaPlayer != null) {
-                        mNextMediaPlayer?.release()
-                        mNextMediaPlayer = null
-                    }
-                }
-            } else {
-                if (mNextMediaPlayer != null) {
-                    mNextMediaPlayer?.release()
-                    mNextMediaPlayer = null
                 }
             }
         }
@@ -133,9 +142,7 @@ class MultiPlayer(context: Context) : LocalPlayback(context) {
     override fun release() {
         stop()
         mCurrentMediaPlayer.release()
-        if (mNextMediaPlayer != null) {
-            mNextMediaPlayer?.release()
-        }
+        mNextMediaPlayer?.release()
     }
 
     /**
@@ -241,7 +248,7 @@ class MultiPlayer(context: Context) : LocalPlayback(context) {
         mCurrentMediaPlayer = MediaPlayer()
         mCurrentMediaPlayer.setWakeMode(context, PowerManager.PARTIAL_WAKE_LOCK)
         context.showToast(R.string.unplayable_file)
-        Log.e(TAG, what.toString() + extra)
+        logE(what.toString() + extra)
         return false
     }
 
@@ -252,9 +259,9 @@ class MultiPlayer(context: Context) : LocalPlayback(context) {
             mCurrentMediaPlayer = mNextMediaPlayer!!
             isInitialized = true
             mNextMediaPlayer = null
-            if (callbacks != null) callbacks?.onTrackWentToNext()
+            callbacks?.onTrackWentToNext()
         } else {
-            if (callbacks != null) callbacks?.onTrackEnded()
+            callbacks?.onTrackEnded()
         }
     }
 
@@ -262,6 +269,7 @@ class MultiPlayer(context: Context) : LocalPlayback(context) {
 
     override fun setPlaybackSpeedPitch(speed: Float, pitch: Float) {
         mCurrentMediaPlayer.setPlaybackSpeedPitch(speed, pitch)
+        mNextMediaPlayer?.setPlaybackSpeedPitch(speed, pitch)
     }
 
     companion object {
