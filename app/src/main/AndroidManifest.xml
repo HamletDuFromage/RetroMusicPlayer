@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="code.name.monkey.retromusic">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission
         android:name="android.permission.BLUETOOTH"
@@ -22,6 +21,7 @@
         android:name="android.permission.WRITE_SETTINGS"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission
         android:name="android.permission.BLUETOOTH_CONNECT"
         android:usesPermissionFlags="neverForLocation"
@@ -55,7 +55,6 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
-
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter>
@@ -125,7 +124,8 @@
         <activity android:name=".activities.PermissionActivity" />
         <activity
             android:name=".activities.LockScreenActivity"
-            android:launchMode="singleTop"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
             android:showOnLockScreen="true" />
         <activity
             android:name=".fragments.backup.RestoreActivity"

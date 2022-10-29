@@ -29,7 +29,6 @@ import code.name.monkey.retromusic.extensions.getTintedDrawable
 import code.name.monkey.retromusic.glide.GlideApp
 import code.name.monkey.retromusic.glide.RetroGlideExtension
 import code.name.monkey.retromusic.glide.audiocover.AudioFileCover
-import code.name.monkey.retromusic.interfaces.ICabHolder
 import code.name.monkey.retromusic.interfaces.ICallbacks
 import code.name.monkey.retromusic.util.MusicUtil
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -44,10 +43,9 @@ class SongFileAdapter(
     override val activity: AppCompatActivity,
     private var dataSet: List<File>,
     private val itemLayoutRes: Int,
-    private val iCallbacks: ICallbacks?,
-    iCabHolder: ICabHolder?,
+    private val iCallbacks: ICallbacks?
 ) : AbsMultiSelectAdapter<SongFileAdapter.ViewHolder, File>(
-    activity, iCabHolder, R.menu.menu_media_selection
+    activity, R.menu.menu_media_selection
 ), PopupTextProvider {
 
     init {
@@ -97,7 +95,7 @@ class SongFileAdapter(
     }
 
     private fun loadFileImage(file: File, holder: ViewHolder) {
-        val iconColor = ATHUtil.resolveColor(activity, R.attr.colorControlNormal)
+        val iconColor = ATHUtil.resolveColor(activity, androidx.appcompat.R.attr.colorControlNormal)
         if (file.isDirectory) {
             holder.image?.let {
                 it.setColorFilter(iconColor, PorterDuff.Mode.SRC_IN)
@@ -106,11 +104,11 @@ class SongFileAdapter(
             holder.imageTextContainer?.setCardBackgroundColor(
                 ATHUtil.resolveColor(
                     activity,
-                    R.attr.colorSurface
+                    com.google.android.material.R.attr.colorSurface
                 )
             )
         } else {
-            val error = activity.getTintedDrawable(R.drawable.ic_file_music, iconColor)
+            val error = activity.getTintedDrawable(R.drawable.ic_audio_file, iconColor)
             GlideApp.with(activity)
                 .load(AudioFileCover(file.path))
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
